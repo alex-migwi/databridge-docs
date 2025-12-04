@@ -1,25 +1,5 @@
 [
   {
-    "slug": "advanced/cli-development-part-1",
-    "title": "advanced/cli-development-part-1",
-    "content": "# Building DataBridge CLI - Complete Tutorial\n\nThis tutorial walks through building DataBridge's CLI from scratch, explaining every concept along the way.\n\n## Prerequisites\n\n- Node.js 20+\n- TypeScript knowledge (beginner-friendly)\n- Basic understanding of databases\n- Familiarity with command-line tools\n\n---\n\n## Table of Contents\n\n1. [Understanding the Architecture](#understanding-the-architecture)\n2. [Setting Up the CLI Framework](#setting-up-the-cli-framework)\n3. [Command 1: Init](#command-1-in"
-  },
-  {
-    "slug": "advanced/cli-development-part-2",
-    "title": "advanced/cli-development-part-2",
-    "content": "# DataBridge CLI Tutorial - Part 2: Code Generation & Server\n\n_Continued from [Part 1: Setup, Init, and Introspect](./cli-development-part-1.md)_\n\n---\n\n## Command 3: Generate\n\n### Purpose\n\nThis is the **heart of DataBridge** - it generates:\n- **API Routes:** Fastify endpoints with CRUD operations\n- **Angular Services:** TypeScript services with HttpClient\n- **Type Definitions:** Shared TypeScript interfaces\n\n### Key Concepts\n\n#### 1. Prisma DMMF (Data Model Meta Format)\n\n**DMMF is like a JSON bl"
-  },
-  {
-    "slug": "advanced/cli-development-part-3",
-    "title": "advanced/cli-development-part-3",
-    "content": "# DataBridge CLI Tutorial - Part 3: Testing and Deployment\n\n_Continued from [Part 2: Generate and Serve Commands](./cli-development-part-2.md)_\n\n---\n\n## End-to-End Testing\n\n### Prerequisites\n\nBefore testing, you need:\n- MySQL database running\n- Tables created in database\n- DataBridge CLI built and ready\n\n### Setting Up MySQL with Docker\n\n**Quick start with Docker Compose:**\n\n```yaml\n# docker/docker-compose.yml\nversion: '3.8'\n\nservices:\n  mysql:\n    image: mysql:8.0\n    container_name: databridge"
-  },
-  {
-    "slug": "advanced/docusaurus-setup",
-    "title": "DataBridge",
-    "content": "# DataBridge CLI - Docusaurus Setup Guide\n\nThis guide shows how to create a documentation site using Docusaurus with the tutorial content we've generated.\n\n---\n\n## Quick Setup\n\n### 1. Install Docusaurus\n\n```bash\n# In your databridge project root\ncd docs\n\n# Create Docusaurus site\nnpx create-docusaurus@latest website classic --typescript\n\n# Navigate to the website\ncd website\n```\n\n### 2. Project Structure\n\n```\ndocs/\n├── website/                    # Docusaurus site\n│   ├── docs/                   #"
-  },
-  {
     "slug": "changelog",
     "title": "changelog",
     "content": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n## [Unreleased]\n\n## [0.1.0] - 2024-12-04\n\n### Added\n\n- **CLI Commands**\n  - `databridge init` - Initialize new DataBridge project with interactive prompts\n  - `databridge introspect` - Introspect database and generate Prisma schema\n  - `databridge"
