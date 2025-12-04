@@ -1,0 +1,727 @@
+<!DOCTYPE html><html lang="en" class="scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta name="description" content="Master request validation, custom rules, and error handling with Zod"><meta name="author" content="DataBridge Docs"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://alex-migwi.github.io/clarity-docs/docs/databridge/development/validation-guide/"><meta property="og:title" content="Validation with Zod - DataBridge Docs"><meta property="og:description" content="Master request validation, custom rules, and error handling with Zod"><meta property="og:site_name" content="DataBridge Docs"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://alex-migwi.github.io/clarity-docs/docs/databridge/development/validation-guide/"><meta name="twitter:title" content="Validation with Zod - DataBridge Docs"><meta name="twitter:description" content="Master request validation, custom rules, and error handling with Zod"><!-- Canonical URL --><link rel="canonical" href="https://alex-migwi.github.io/clarity-docs/docs/databridge/development/validation-guide/"><title>Validation with Zod - DataBridge Docs</title><script>
+            // Theme initialization - must run before page renders
+            (function() {
+                const getThemePreference = () => {
+                    if (
+                        typeof localStorage !== "undefined" &&
+                        localStorage.getItem("theme")
+                    ) {
+                        return localStorage.getItem("theme");
+                    }
+                    return window.matchMedia("(prefers-color-scheme: dark)").matches
+                        ? "dark"
+                        : "light";
+                };
+                const theme = getThemePreference();
+                if (theme === "dark") {
+                    document.documentElement.classList.add("dark");
+                } else {
+                    document.documentElement.classList.remove("dark");
+                }
+            })();
+
+            if (typeof localStorage !== "undefined") {
+                const observer = new MutationObserver(() => {
+                    const isDark =
+                        document.documentElement.classList.contains("dark");
+                    localStorage.setItem("theme", isDark ? "dark" : "light");
+                });
+                observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ["class"],
+                });
+            }
+        </script><link rel="stylesheet" href="/clarity-docs/_astro/dashboard.yRg8Cl78.css">
+<style>.code-block-wrapper[data-astro-cid-a3hy7aej]{position:relative;margin:1.5rem 0}.copy-button[data-astro-cid-a3hy7aej]{position:absolute;top:.5rem;right:.5rem;padding:.5rem;border-radius:.375rem;background:hsl(var(--muted));border:1px solid hsl(var(--border));color:hsl(var(--muted-foreground));cursor:pointer;opacity:0;transition:opacity .2s,background .2s,color .2s;z-index:10}.code-block-wrapper[data-astro-cid-a3hy7aej]:hover .copy-button[data-astro-cid-a3hy7aej]{opacity:1}.copy-button[data-astro-cid-a3hy7aej]:hover{background:hsl(var(--accent));color:hsl(var(--accent-foreground))}.copy-button[data-astro-cid-a3hy7aej].copied{background:hsl(var(--primary));color:hsl(var(--primary-foreground))}.copy-button[data-astro-cid-a3hy7aej] svg[data-astro-cid-a3hy7aej]{width:16px;height:16px;display:block}.hidden[data-astro-cid-a3hy7aej]{display:none}
+</style></head> <body class="bg-background text-foreground min-h-screen flex flex-col"> <header class="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60"> <div class="flex h-16 items-center px-4 sm:px-6 lg:px-8"> <button id="sidebar-toggle" class="mr-4 md:hidden p-2 text-muted-foreground hover:text-foreground"> <span class="sr-only">Open sidebar</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path> </svg> </button> <div class="flex items-center gap-2 font-bold text-xl tracking-tight"> <a href="/clarity-docs/" class="flex items-center gap-3 hover:opacity-80 transition-opacity"> <img src="/clarity-docs/logo.svg" alt="DataBridge Docs" class="h-8 w-8"> <span class="text-foreground">DataBridge Docs</span> </a> </div> <div class="flex-1"></div> <div class="flex items-center gap-4"> <div class="hidden md:block w-64"> <div class="relative" data-astro-cid-otpdt6jm> <button id="search-trigger" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground bg-muted/50 rounded-md border border-border hover:border-primary transition-colors" data-astro-cid-otpdt6jm> <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-otpdt6jm> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" data-astro-cid-otpdt6jm></path> </svg> <span data-astro-cid-otpdt6jm>Search...</span> <kbd class="ml-auto px-2 py-0.5 text-xs bg-background border border-border rounded" data-astro-cid-otpdt6jm>⌘K</kbd> </button> </div> <!-- Search Modal - Portal to body level --> <teleport-search-modal data-astro-cid-otpdt6jm="true"> <div id="search-modal" class="hidden fixed inset-0 z-[9999] overflow-y-auto" style="z-index: 9999 !important;" data-astro-cid-otpdt6jm> <div class="flex min-h-screen items-start justify-center p-4 pt-20" data-astro-cid-otpdt6jm> <div class="fixed inset-0 bg-background/80 backdrop-blur-sm" id="search-backdrop" data-astro-cid-otpdt6jm></div> <div class="relative w-full max-w-2xl bg-background border border-border rounded-lg shadow-lg" data-astro-cid-otpdt6jm> <div class="flex items-center gap-3 px-4 py-3 border-b border-border" data-astro-cid-otpdt6jm> <svg class="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-otpdt6jm> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" data-astro-cid-otpdt6jm></path> </svg> <input id="search-input" type="text" placeholder="Search documentation..." class="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground" autocomplete="off" data-astro-cid-otpdt6jm> <button id="search-close" class="text-muted-foreground hover:text-foreground" data-astro-cid-otpdt6jm> <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-otpdt6jm> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" data-astro-cid-otpdt6jm></path> </svg> </button> </div> <div id="search-results" class="max-h-[60vh] overflow-y-auto p-2" data-astro-cid-otpdt6jm> <div class="px-4 py-8 text-center text-muted-foreground" data-astro-cid-otpdt6jm>
+Start typing to search...
+</div> </div> </div> </div> <script type="module">const u=document.querySelector("teleport-search-modal");if(u){const e=u.querySelector("#search-modal");e&&(document.body.appendChild(e),u.remove())}const c=document.getElementById("search-modal"),b=document.getElementById("search-trigger"),E=document.getElementById("search-close"),C=document.getElementById("search-backdrop"),h=document.getElementById("search-input"),s=document.getElementById("search-results");let x=[],o=-1;async function M(){try{x=await(await fetch("/clarity-docs/search-index.json")).json()}catch(e){console.error("Failed to load search index:",e)}}function I(e){if(!e.trim()){s.innerHTML='<div class="px-4 py-8 text-center text-muted-foreground">Start typing to search...</div>';return}const n=e.toLowerCase(),d=x.filter(t=>t.title&&t.title.toLowerCase().includes(n)||t.description&&t.description.toLowerCase().includes(n)||t.content&&t.content.toLowerCase().includes(n)).slice(0,10);if(d.length===0){s.innerHTML='<div class="px-4 py-8 text-center text-muted-foreground">No results found</div>';return}function g(t,r){if(!t||!r)return t||"";const a=r.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),i=new RegExp(`(${a})`,"gi");return t.replace(i,'<mark class="bg-primary/20 text-foreground rounded px-0.5">$1</mark>')}function L(t,r){if(!t)return"";const a=t.toLowerCase(),i=r.toLowerCase(),l=a.indexOf(i);if(l===-1)return t.substring(0,150)+"...";const p=Math.max(0,l-50),y=Math.min(t.length,l+r.length+100),k=(p>0?"...":"")+t.substring(p,y)+(y<t.length?"...":"");return g(k,r)}s.innerHTML=d.map((t,r)=>`
+      <a href="/docs/${t.slug}" 
+         class="block px-4 py-3 rounded-md hover:bg-muted/50 transition-colors search-result"
+         data-index="${r}">
+        <div class="font-medium text-foreground">${g(t.title||"Untitled",n)}</div>
+        <div class="text-sm text-muted-foreground line-clamp-2 mt-1">${L(t.description||t.content||"",n)}</div>
+      </a>
+    `).join(""),m()}function w(){c?.classList.remove("hidden"),h?.focus(),document.body.style.overflow="hidden",o=-1}function f(){c?.classList.add("hidden"),h.value="",s.innerHTML='<div class="px-4 py-8 text-center text-muted-foreground">Start typing to search...</div>',document.body.style.overflow="",o=-1}function m(){const e=document.querySelectorAll(".search-result");e.forEach(n=>n.classList.remove("bg-muted/50")),o>=0&&o<e.length&&(e[o].classList.add("bg-muted/50"),e[o].scrollIntoView({block:"nearest",behavior:"smooth"}))}function $(e){const n=document.querySelectorAll(".search-result");n.length!==0&&(e.key==="ArrowDown"?(e.preventDefault(),o=Math.min(o+1,n.length-1),m()):e.key==="ArrowUp"?(e.preventDefault(),o=Math.max(o-1,-1),m()):e.key==="Enter"&&o>=0&&(e.preventDefault(),n[o].click()))}b?.addEventListener("click",w);E?.addEventListener("click",f);C?.addEventListener("click",f);document.addEventListener("keydown",e=>{(e.metaKey||e.ctrlKey)&&e.key==="k"&&(e.preventDefault(),w()),e.key==="Escape"&&f(),c&&!c.classList.contains("hidden")&&$(e)});let v;h?.addEventListener("input",e=>{clearTimeout(v),v=setTimeout(()=>{I(e.target.value)},300)});M();</script> </div></teleport-search-modal> </div> <nav class="flex items-center gap-4">  <button id="theme-toggle" type="button" class="inline-flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" aria-label="Toggle theme"> <!-- Sun Icon (Shows in Dark Mode) --> <svg id="sun-icon" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path> </svg> <!-- Moon Icon (Shows in Light Mode) --> <svg id="moon-icon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path> </svg> </button> <script>
+    const updateIcons = () => {
+        const isDark = document.documentElement.classList.contains("dark");
+        const sunIcon = document.getElementById("sun-icon");
+        const moonIcon = document.getElementById("moon-icon");
+        
+        if (isDark) {
+            sunIcon?.classList.remove("hidden");
+            moonIcon?.classList.add("hidden");
+        } else {
+            sunIcon?.classList.add("hidden");
+            moonIcon?.classList.remove("hidden");
+        }
+    };
+    
+    const handleToggleClick = () => {
+        const element = document.documentElement;
+        element.classList.toggle("dark");
+
+        const isDark = element.classList.contains("dark");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        
+        updateIcons();
+    };
+
+    document
+        .getElementById("theme-toggle")
+        ?.addEventListener("click", handleToggleClick);
+    
+    // Initialize icons on page load
+    updateIcons();
+</script> </nav> </div> </div> </header> <div class="flex flex-1 pt-16"> <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 transform bg-background border-r border-border transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 md:sticky md:top-16 md:h-[calc(100vh-4rem)] md:overflow-y-auto pt-16 md:pt-0"> <nav class="h-full px-4 py-6 overflow-y-auto"> <ul class="space-y-1"> <li class="mt-1"> <a href="/clarity-docs/docs/databridge" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> DataBridge Documentation </a> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/clarity-docs/docs/databridge/introduction" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Introduction to DataBridge </a>  </li><li class="mt-1"> <a href="/clarity-docs/docs/databridge/changelog" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Changelog </a>  </li><li class="mt-1"> <a href="/clarity-docs/docs/databridge/releases" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Releases </a>  </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Advanced </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/clarity-docs/docs/databridge/advanced/cli-development-part-1" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> CLI Development - Part 1 </a>  </li><li class="mt-1"> <a href="/clarity-docs/docs/databridge/advanced/cli-development-part-2" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> CLI Development - Part 2 </a>  </li><li class="mt-1"> <a href="/clarity-docs/docs/databridge/advanced/cli-development-part-3" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> CLI Development - Part 3 </a>  </li><li class="mt-1"> <a href="/clarity-docs/docs/databridge/advanced/docusaurus-setup" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Docusaurus Setup </a>  </li> </ul> </div> </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Deployment </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/clarity-docs/docs/databridge/deployment/production-deployment" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Production Deployment </a>  </li> </ul> </div> </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Development </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/clarity-docs/docs/databridge/development/understanding-generated-code" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Understanding Generated Code </a>  </li><li class="mt-1"> <a href="/clarity-docs/docs/databridge/development/validation-guide" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 bg-primary/10 text-primary font-medium"> Validation with Zod </a>  </li><li class="mt-1"> <a href="/clarity-docs/docs/databridge/development/testing-guide" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Testing Your API </a>  </li> </ul> </div> </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Getting Started </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/clarity-docs/docs/databridge/getting-started/database-setup" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Database Connection Setup </a>  </li><li class="mt-1"> <a href="/clarity-docs/docs/databridge/getting-started/quick-start" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Quick Start Guide </a>  </li><li class="mt-1"> <a href="/clarity-docs/docs/databridge/getting-started/getting-started-guide" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Getting Started Guide </a>  </li><li class="mt-1"> <a href="/clarity-docs/docs/databridge/getting-started/core-concepts" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Core Concepts </a>  </li> </ul> </div> </li> </ul> </div> </li> </ul> </nav> </aside> <div id="sidebar-backdrop" class="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden hidden" aria-hidden="true"></div> <main class="flex-1 min-w-0"> <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex gap-10"> <article class="flex-1 prose dark:prose-invert max-w-4xl prose-headings:scroll-mt-20 prose-a:text-primary hover:prose-a:text-primary/80"> <nav class="flex items-center gap-2 text-sm text-muted-foreground mb-6"> <a href="/clarity-docs/" class="hover:text-foreground transition-colors">Home</a>  <span class="mx-1">/</span> <a href="/clarity-docs/docs/databridge" class="hover:text-foreground transition-colors"> Databridge </a> <span class="mx-1">/</span> <a href="/clarity-docs/docs/databridge/development" class="hover:text-foreground transition-colors"> Development </a> <span class="mx-1">/</span> <span class="text-foreground font-medium">Validation Guide</span> </nav> <div class="not-prose mb-10"> <h1 class="text-3xl font-semibold mb-4 text-foreground"> Validation with Zod </h1> <p class="text-lg text-muted-foreground leading-relaxed"> Master request validation, custom rules, and error handling with Zod </p> </div>  <h1 id="validation-with-zod">Validation with Zod</h1>
+<p>Learn how to customize and extend validation rules for your DataBridge API.</p>
+<h2 id="overview">Overview</h2>
+<p>DataBridge uses <a href="https://zod.dev/">Zod</a> for runtime type validation. This guide covers:</p>
+<ul>
+<li>Understanding auto-generated schemas</li>
+<li>Adding custom validation rules</li>
+<li>Handling validation errors</li>
+<li>Best practices and patterns</li>
+</ul>
+<hr>
+<h2 id="auto-generated-schemas">Auto-Generated Schemas</h2>
+<p>When you run <code>databridge generate</code>, Zod schemas are created based on your Prisma types.</p>
+<h3 id="prisma-to-zod-mapping">Prisma to Zod Mapping</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Prisma Type</th><th>Zod Type</th><th>Example</th></tr></thead><tbody><tr><td><code>String</code></td><td><code>z.string()</code></td><td><code>name: z.string()</code></td></tr><tr><td><code>Int</code></td><td><code>z.number().int()</code></td><td><code>age: z.number().int()</code></td></tr><tr><td><code>Float/Decimal</code></td><td><code>z.number()</code></td><td><code>price: z.number()</code></td></tr><tr><td><code>Boolean</code></td><td><code>z.boolean()</code></td><td><code>is_active: z.boolean()</code></td></tr><tr><td><code>DateTime</code></td><td><code>z.date()</code> or <code>z.string().datetime()</code></td><td><code>created_at: z.date()</code></td></tr><tr><td><code>String?</code> (optional)</td><td><code>z.string().optional()</code></td><td><code>bio: z.string().optional()</code></td></tr><tr><td><code>Enum</code></td><td><code>z.enum([...])</code></td><td><code>role: z.enum(['admin', 'user'])</code></td></tr></tbody></table>
+<h3 id="example-generated-schema">Example Generated Schema</h3>
+<p><strong>Prisma:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="prisma"><code><span class="line"><span style="color:#F97583">model</span><span style="color:#B392F0"> products</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  id          </span><span style="color:#79B8FF">Int</span><span style="color:#B392F0">       @id</span><span style="color:#B392F0"> @default</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">autoincrement</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">  name        </span><span style="color:#79B8FF">String</span><span style="color:#B392F0">    @db.VarChar</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">255</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  description </span><span style="color:#79B8FF">String</span><span style="color:#F97583">?</span><span style="color:#B392F0">   @db.Text</span></span>
+<span class="line"><span style="color:#E1E4E8">  price       </span><span style="color:#79B8FF">Decimal</span><span style="color:#B392F0">   @db.Decimal</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  stock       </span><span style="color:#79B8FF">Int</span><span style="color:#F97583">?</span><span style="color:#B392F0">      @default</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  category    </span><span style="color:#79B8FF">String</span><span style="color:#F97583">?</span><span style="color:#B392F0">   @db.VarChar</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  is_active   </span><span style="color:#79B8FF">Boolean</span><span style="color:#F97583">?</span><span style="color:#B392F0">  @default</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  created_at  </span><span style="color:#79B8FF">DateTime</span><span style="color:#F97583">?</span><span style="color:#B392F0"> @default</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">now</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>Generated Zod:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> productsSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  name: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Name is required"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">255</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  description: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  price: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Price must be positive"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  stock: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">nonnegative</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Stock cannot be negative"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  category: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  is_active: z.</span><span style="color:#B392F0">boolean</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<hr>
+<h2 id="customizing-validation-rules">Customizing Validation Rules</h2>
+<h3 id="string-validation">String Validation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> userSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#6A737D">  // Basic string</span></span>
+<span class="line"><span style="color:#E1E4E8">  name: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Length constraints</span></span>
+<span class="line"><span style="color:#E1E4E8">  username: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Username must be at least 3 characters"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Username cannot exceed 20 characters"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Email validation</span></span>
+<span class="line"><span style="color:#E1E4E8">  email: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">email</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Invalid email format"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // URL validation</span></span>
+<span class="line"><span style="color:#E1E4E8">  website: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">url</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Invalid URL format"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Regex pattern</span></span>
+<span class="line"><span style="color:#E1E4E8">  phone: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#F97583">^</span><span style="color:#85E89D;font-weight:bold">\+</span><span style="color:#F97583">?</span><span style="color:#79B8FF">[1-9]\d</span><span style="color:#F97583">{1,14}$</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Invalid phone number"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Custom validation</span></span>
+<span class="line"><span style="color:#E1E4E8">  password: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">8</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Password must be at least 8 characters"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#79B8FF">[A-Z]</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Password must contain uppercase letter"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#79B8FF">[a-z]</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Password must contain lowercase letter"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#79B8FF">[0-9]</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Password must contain number"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#79B8FF">[</span><span style="color:#F97583">^</span><span style="color:#79B8FF">A-Za-z0-9]</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Password must contain special character"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Non-empty string</span></span>
+<span class="line"><span style="color:#E1E4E8">  bio: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Bio cannot be empty"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">500</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="number-validation">Number Validation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> productSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#6A737D">  // Integer</span></span>
+<span class="line"><span style="color:#E1E4E8">  stock: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Stock must be an integer"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">nonnegative</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Stock cannot be negative"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Positive number</span></span>
+<span class="line"><span style="color:#E1E4E8">  price: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Price must be positive"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Range validation</span></span>
+<span class="line"><span style="color:#E1E4E8">  rating: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Rating must be at least 1"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">5</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Rating cannot exceed 5"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Multiple of</span></span>
+<span class="line"><span style="color:#E1E4E8">  discount_percent: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">multipleOf</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">5</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Discount must be multiple of 5"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Custom validation</span></span>
+<span class="line"><span style="color:#E1E4E8">  age: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">refine</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">val</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> val </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 18</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Must be at least 18 years old"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="boolean-validation">Boolean Validation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> settingsSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  is_active: z.</span><span style="color:#B392F0">boolean</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // With default</span></span>
+<span class="line"><span style="color:#E1E4E8">  notifications_enabled: z.</span><span style="color:#B392F0">boolean</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">default</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Optional</span></span>
+<span class="line"><span style="color:#E1E4E8">  is_verified: z.</span><span style="color:#B392F0">boolean</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="date-validation">Date Validation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> eventSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#6A737D">  // Date object</span></span>
+<span class="line"><span style="color:#E1E4E8">  start_date: z.</span><span style="color:#B392F0">date</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // ISO string</span></span>
+<span class="line"><span style="color:#E1E4E8">  end_date: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">datetime</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Invalid date format"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Custom validation</span></span>
+<span class="line"><span style="color:#E1E4E8">  birth_date: z.</span><span style="color:#B392F0">date</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">refine</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#FFAB70">      date</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> date </span><span style="color:#F97583">&#x3C;</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Date</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#9ECBFF">      "Birth date must be in the past"</span></span>
+<span class="line"><span style="color:#E1E4E8">    ),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Date range</span></span>
+<span class="line"><span style="color:#E1E4E8">  event_date: z.</span><span style="color:#B392F0">date</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">refine</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#FFAB70">      date</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> minDate</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Date</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'2024-01-01'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> maxDate</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Date</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'2024-12-31'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> date </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> minDate </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> date </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> maxDate;</span></span>
+<span class="line"><span style="color:#E1E4E8">      },</span></span>
+<span class="line"><span style="color:#9ECBFF">      "Event must be in 2024"</span></span>
+<span class="line"><span style="color:#E1E4E8">    ),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="enum-validation">Enum Validation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> orderSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#6A737D">  // Simple enum</span></span>
+<span class="line"><span style="color:#E1E4E8">  status: z.</span><span style="color:#B392F0">enum</span><span style="color:#E1E4E8">([</span><span style="color:#9ECBFF">'pending'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'paid'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'shipped'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'delivered'</span><span style="color:#E1E4E8">]),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // With default</span></span>
+<span class="line"><span style="color:#E1E4E8">  priority: z.</span><span style="color:#B392F0">enum</span><span style="color:#E1E4E8">([</span><span style="color:#9ECBFF">'low'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'medium'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'high'</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">default</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'medium'</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Optional enum</span></span>
+<span class="line"><span style="color:#E1E4E8">  shipping_method: z.</span><span style="color:#B392F0">enum</span><span style="color:#E1E4E8">([</span><span style="color:#9ECBFF">'standard'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'express'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'overnight'</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<hr>
+<h2 id="advanced-validation-patterns">Advanced Validation Patterns</h2>
+<h3 id="conditional-validation">Conditional Validation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> orderSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  payment_method: z.</span><span style="color:#B392F0">enum</span><span style="color:#E1E4E8">([</span><span style="color:#9ECBFF">'card'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'paypal'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'bank_transfer'</span><span style="color:#E1E4E8">]),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Required if payment_method is 'card'</span></span>
+<span class="line"><span style="color:#E1E4E8">  card_number: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Required if payment_method is 'bank_transfer'</span></span>
+<span class="line"><span style="color:#E1E4E8">  bank_account: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">}).</span><span style="color:#B392F0">refine</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#FFAB70">  data</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (data.payment_method </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> 'card'</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">      return</span><span style="color:#F97583"> !!</span><span style="color:#E1E4E8">data.card_number;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (data.payment_method </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> 'bank_transfer'</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">      return</span><span style="color:#F97583"> !!</span><span style="color:#E1E4E8">data.bank_account;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#E1E4E8">    message: </span><span style="color:#9ECBFF">"Payment details required for selected method"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    path: [</span><span style="color:#9ECBFF">'payment_method'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">);</span></span></code></pre>
+<h3 id="cross-field-validation">Cross-Field Validation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> bookingSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  check_in: z.</span><span style="color:#B392F0">date</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  check_out: z.</span><span style="color:#B392F0">date</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  guests: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  rooms: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">}).</span><span style="color:#B392F0">refine</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#FFAB70">  data</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> data.check_out </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> data.check_in,</span></span>
+<span class="line"><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#E1E4E8">    message: </span><span style="color:#9ECBFF">"Check-out must be after check-in"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    path: [</span><span style="color:#9ECBFF">'check_out'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">).</span><span style="color:#B392F0">refine</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#FFAB70">  data</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> data.guests </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> data.rooms </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#E1E4E8">    message: </span><span style="color:#9ECBFF">"Not enough rooms for guests (max 2 per room)"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    path: [</span><span style="color:#9ECBFF">'guests'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">);</span></span></code></pre>
+<h3 id="array-validation">Array Validation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> orderSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  items: z.</span><span style="color:#B392F0">array</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">    z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      product_id: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">      quantity: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">      price: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">    })</span></span>
+<span class="line"><span style="color:#E1E4E8">  )</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Order must have at least one item"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">50</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Order cannot have more than 50 items"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  tags: z.</span><span style="color:#B392F0">array</span><span style="color:#E1E4E8">(z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Unique array</span></span>
+<span class="line"><span style="color:#E1E4E8">  categories: z.</span><span style="color:#B392F0">array</span><span style="color:#E1E4E8">(z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">refine</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#FFAB70">      arr</span><span style="color:#F97583"> =></span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Set</span><span style="color:#E1E4E8">(arr).size </span><span style="color:#F97583">===</span><span style="color:#E1E4E8"> arr.</span><span style="color:#79B8FF">length</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">      "Categories must be unique"</span></span>
+<span class="line"><span style="color:#E1E4E8">    ),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="nested-objects">Nested Objects</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> userProfileSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  user: z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">    name: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">    email: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">email</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  }),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  address: z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">    street: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">    city: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">    state: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"State must be 2 letters"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">    zip: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#F97583">^</span><span style="color:#79B8FF">\d</span><span style="color:#F97583">{5}</span><span style="color:#DBEDFF">(-</span><span style="color:#79B8FF">\d</span><span style="color:#F97583">{4}</span><span style="color:#DBEDFF">)</span><span style="color:#F97583">?$</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  }).</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  preferences: z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">    theme: z.</span><span style="color:#B392F0">enum</span><span style="color:#E1E4E8">([</span><span style="color:#9ECBFF">'light'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'dark'</span><span style="color:#E1E4E8">]),</span></span>
+<span class="line"><span style="color:#E1E4E8">    language: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">    notifications: z.</span><span style="color:#B392F0">boolean</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  }),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<hr>
+<h2 id="using-validation-in-routes">Using Validation in Routes</h2>
+<h3 id="basic-usage">Basic Usage</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { z } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'zod'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> createProductSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  name: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">255</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  price: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  stock: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">nonnegative</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> default</span><span style="color:#F97583"> async</span><span style="color:#F97583"> function</span><span style="color:#B392F0"> productsRoutes</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fastify</span><span style="color:#F97583">:</span><span style="color:#B392F0"> FastifyInstance</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  fastify.</span><span style="color:#B392F0">post</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/products'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">      // Validate request body</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> validatedData</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> createProductSchema.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(request.body);</span></span>
+<span class="line"><span style="color:#E1E4E8">      </span></span>
+<span class="line"><span style="color:#6A737D">      // Create product with validated data</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> product</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> fastify.prisma.products.</span><span style="color:#B392F0">create</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        data: validatedData,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"><span style="color:#E1E4E8">      </span></span>
+<span class="line"><span style="color:#F97583">      return</span><span style="color:#E1E4E8"> reply.</span><span style="color:#B392F0">status</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">201</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(product);</span></span>
+<span class="line"><span style="color:#E1E4E8">      </span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">error</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (error.name </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> 'ZodError'</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> reply.</span><span style="color:#B392F0">status</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">400</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">          error: </span><span style="color:#9ECBFF">'Validation failed'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">          issues: error.errors,</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">      </span></span>
+<span class="line"><span style="color:#F97583">      throw</span><span style="color:#E1E4E8"> error;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="partial-updates-patch">Partial Updates (PATCH)</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> updateProductSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> createProductSchema.</span><span style="color:#B392F0">partial</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">fastify.</span><span style="color:#B392F0">patch</span><span style="color:#E1E4E8">&#x3C;{ </span><span style="color:#FFAB70">Params</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> { </span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8"> } }>(</span></span>
+<span class="line"><span style="color:#9ECBFF">  '/products/:id'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">  async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> id</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> parseInt</span><span style="color:#E1E4E8">(request.params.id);</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">    // Validate with partial schema (all fields optional)</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> validatedData</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> updateProductSchema.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(request.body);</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> product</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> fastify.prisma.products.</span><span style="color:#B392F0">update</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      where: { id },</span></span>
+<span class="line"><span style="color:#E1E4E8">      data: validatedData,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> product;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">);</span></span></code></pre>
+<h3 id="query-parameters">Query Parameters</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> listProductsQuerySchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  page: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">transform</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">val</span><span style="color:#F97583"> =></span><span style="color:#B392F0"> parseInt</span><span style="color:#E1E4E8">(val))</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">pipe</span><span style="color:#E1E4E8">(z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">default</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'1'</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  limit: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">transform</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">val</span><span style="color:#F97583"> =></span><span style="color:#B392F0"> parseInt</span><span style="color:#E1E4E8">(val))</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">pipe</span><span style="color:#E1E4E8">(z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">default</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'10'</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  category: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  sort: z.</span><span style="color:#B392F0">enum</span><span style="color:#E1E4E8">([</span><span style="color:#9ECBFF">'name'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'price'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'created_at'</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">default</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'created_at'</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  order: z.</span><span style="color:#B392F0">enum</span><span style="color:#E1E4E8">([</span><span style="color:#9ECBFF">'asc'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'desc'</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">default</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'desc'</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">fastify.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/products'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> params</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> listProductsQuerySchema.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(request.query);</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> products</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> fastify.prisma.products.</span><span style="color:#B392F0">findMany</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">    where: params.category </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> { category: params.category } </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> undefined</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    orderBy: { [params.sort]: params.order },</span></span>
+<span class="line"><span style="color:#E1E4E8">    skip: (params.page </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> params.limit,</span></span>
+<span class="line"><span style="color:#E1E4E8">    take: params.limit,</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> products;</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<hr>
+<h2 id="error-handling">Error Handling</h2>
+<h3 id="validation-error-response">Validation Error Response</h3>
+<p>When validation fails, Zod provides detailed error information:</p>
+<p><strong>Request:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">curl</span><span style="color:#79B8FF"> -X</span><span style="color:#9ECBFF"> POST</span><span style="color:#9ECBFF"> http://localhost:3000/products</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -H</span><span style="color:#9ECBFF"> "Content-Type: application/json"</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -d</span><span style="color:#9ECBFF"> '{</span></span>
+<span class="line"><span style="color:#9ECBFF">    "name": "",</span></span>
+<span class="line"><span style="color:#9ECBFF">    "price": -10,</span></span>
+<span class="line"><span style="color:#9ECBFF">    "stock": "invalid"</span></span>
+<span class="line"><span style="color:#9ECBFF">  }'</span></span></code></pre>
+<p><strong>Response:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="json"><code><span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#79B8FF">  "error"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Validation failed"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">  "issues"</span><span style="color:#E1E4E8">: [</span></span>
+<span class="line"><span style="color:#E1E4E8">    {</span></span>
+<span class="line"><span style="color:#79B8FF">      "code"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"too_small"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "minimum"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"string"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "inclusive"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "exact"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "message"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Name is required"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "path"</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"name"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">    },</span></span>
+<span class="line"><span style="color:#E1E4E8">    {</span></span>
+<span class="line"><span style="color:#79B8FF">      "code"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"too_small"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "minimum"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"number"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "inclusive"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "exact"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "message"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Price must be positive"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "path"</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"price"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">    },</span></span>
+<span class="line"><span style="color:#E1E4E8">    {</span></span>
+<span class="line"><span style="color:#79B8FF">      "code"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"invalid_type"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "expected"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"number"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "received"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"string"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "message"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Expected number, received string"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "path"</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"stock"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  ]</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="custom-error-messages">Custom Error Messages</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> schema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  email: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">email</span><span style="color:#E1E4E8">({ message: </span><span style="color:#9ECBFF">"Please enter a valid email address"</span><span style="color:#E1E4E8"> }),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  age: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">18</span><span style="color:#E1E4E8">, { message: </span><span style="color:#9ECBFF">"You must be at least 18 years old"</span><span style="color:#E1E4E8"> })</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">120</span><span style="color:#E1E4E8">, { message: </span><span style="color:#9ECBFF">"Please enter a valid age"</span><span style="color:#E1E4E8"> }),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  password: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">8</span><span style="color:#E1E4E8">, { message: </span><span style="color:#9ECBFF">"Password must be at least 8 characters long"</span><span style="color:#E1E4E8"> })</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#79B8FF">[A-Z]</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">, { </span></span>
+<span class="line"><span style="color:#E1E4E8">      message: </span><span style="color:#9ECBFF">"Password must contain at least one uppercase letter"</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#E1E4E8">    }),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="formatting-error-responses">Formatting Error Responses</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { ZodError } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'zod'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> formatZodError</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">error</span><span style="color:#F97583">:</span><span style="color:#B392F0"> ZodError</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    error: </span><span style="color:#9ECBFF">'Validation failed'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    details: error.errors.</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">err</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> ({</span></span>
+<span class="line"><span style="color:#E1E4E8">      field: err.path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'.'</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">      message: err.message,</span></span>
+<span class="line"><span style="color:#E1E4E8">      code: err.code,</span></span>
+<span class="line"><span style="color:#E1E4E8">    })),</span></span>
+<span class="line"><span style="color:#E1E4E8">  };</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Usage in route</span></span>
+<span class="line"><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">error</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (error.name </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> 'ZodError'</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> reply.</span><span style="color:#B392F0">status</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">400</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">formatZodError</span><span style="color:#E1E4E8">(error));</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<hr>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="do">DO ✅</h3>
+<p><strong>1. Validate all user input:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// POST and PATCH routes</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> data</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> schema.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(request.body);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Query parameters</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> params</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> querySchema.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(request.query);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// URL parameters (if complex)</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">id</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> paramsSchema.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(request.params);</span></span></code></pre>
+<p><strong>2. Use specific error messages:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#E1E4E8">z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">  .</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Name is required"</span><span style="color:#E1E4E8">)  </span><span style="color:#6A737D">// ✅ Clear</span></span>
+<span class="line"><span style="color:#E1E4E8">  .</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Name too long"</span><span style="color:#E1E4E8">)   </span><span style="color:#6A737D">// ❌ Vague</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">  .</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Name is required"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  .</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Name cannot exceed 100 characters"</span><span style="color:#E1E4E8">)  </span><span style="color:#6A737D">// ✅ Specific</span></span></code></pre>
+<p><strong>3. Validate business rules:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> orderSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  quantity: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  unit_price: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  discount: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">}).</span><span style="color:#B392F0">refine</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#FFAB70">  data</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> total</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> data.quantity </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> data.unit_price;</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> discountAmount</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> total </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> (data.discount </span><span style="color:#F97583">/</span><span style="color:#79B8FF"> 100</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> discountAmount </span><span style="color:#F97583">&#x3C;=</span><span style="color:#79B8FF"> 1000</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">// Max $1000 discount</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#9ECBFF">  "Discount cannot exceed $1000"</span></span>
+<span class="line"><span style="color:#E1E4E8">);</span></span></code></pre>
+<p><strong>4. Use transform for type coercion:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// Query params are always strings</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> querySchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  page: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">transform</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">val</span><span style="color:#F97583"> =></span><span style="color:#B392F0"> parseInt</span><span style="color:#E1E4E8">(val, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">pipe</span><span style="color:#E1E4E8">(z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">()),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="dont">DON’T ❌</h3>
+<p><strong>1. Skip validation:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// ❌ Bad - no validation</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> data</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> request.body </span><span style="color:#F97583">as</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// ✅ Good - always validate</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> data</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> schema.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(request.body);</span></span></code></pre>
+<p><strong>2. Use loose validation:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// ❌ Bad - accepts empty strings</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> schema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  name: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// ✅ Good - enforces non-empty</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> schema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  name: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p><strong>3. Ignore validation errors:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// ❌ Bad - silent failure</span></span>
+<span class="line"><span style="color:#F97583">try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> data</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> schema.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(request.body);</span></span>
+<span class="line"><span style="color:#E1E4E8">} </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  // Continue anyway</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// ✅ Good - return error to client</span></span>
+<span class="line"><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">error</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (error.name </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> 'ZodError'</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> reply.</span><span style="color:#B392F0">status</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">400</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      error: </span><span style="color:#9ECBFF">'Validation failed'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      issues: error.errors,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<hr>
+<h2 id="testing-validation">Testing Validation</h2>
+<h3 id="unit-tests">Unit Tests</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { describe, it, expect } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'vitest'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">describe</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Product Schema'</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">  it</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'accepts valid product'</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> valid</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      name: </span><span style="color:#9ECBFF">'Laptop'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      price: </span><span style="color:#79B8FF">999.99</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      stock: </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> productSchema.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(valid)).not.</span><span style="color:#B392F0">toThrow</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#B392F0">  it</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'rejects empty name'</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> invalid</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      name: </span><span style="color:#9ECBFF">''</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      price: </span><span style="color:#79B8FF">999.99</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> productSchema.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(invalid)).</span><span style="color:#B392F0">toThrow</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Name is required'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#B392F0">  it</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'rejects negative price'</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> invalid</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      name: </span><span style="color:#9ECBFF">'Laptop'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      price: </span><span style="color:#F97583">-</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#B392F0">    expect</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> productSchema.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(invalid)).</span><span style="color:#B392F0">toThrow</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Price must be positive'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="integration-tests">Integration Tests</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># Test validation with cURL</span></span>
+<span class="line"><span style="color:#B392F0">curl</span><span style="color:#79B8FF"> -X</span><span style="color:#9ECBFF"> POST</span><span style="color:#9ECBFF"> http://localhost:3000/products</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -H</span><span style="color:#9ECBFF"> "Content-Type: application/json"</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -d</span><span style="color:#9ECBFF"> '{"name": "", "price": -10}'</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -w</span><span style="color:#9ECBFF"> "\n%{http_code}\n"</span></span>
+<span class="line"><span style="color:#6A737D"># Should return 400</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">curl</span><span style="color:#79B8FF"> -X</span><span style="color:#9ECBFF"> POST</span><span style="color:#9ECBFF"> http://localhost:3000/products</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -H</span><span style="color:#9ECBFF"> "Content-Type: application/json"</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -d</span><span style="color:#9ECBFF"> '{"name": "Valid Product", "price": 99.99}'</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -w</span><span style="color:#9ECBFF"> "\n%{http_code}\n"</span></span>
+<span class="line"><span style="color:#6A737D"># Should return 201</span></span></code></pre>
+<hr>
+<h2 id="common-patterns">Common Patterns</h2>
+<h3 id="email--password-registration">Email + Password Registration</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> registerSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  email: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">email</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Invalid email address"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">toLowerCase</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  password: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">8</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Password must be at least 8 characters"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#79B8FF">[A-Z]</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Must contain uppercase letter"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#79B8FF">[a-z]</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Must contain lowercase letter"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#79B8FF">[0-9]</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Must contain number"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#79B8FF">[</span><span style="color:#F97583">^</span><span style="color:#79B8FF">A-Za-z0-9]</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Must contain special character"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  confirm_password: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">}).</span><span style="color:#B392F0">refine</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#FFAB70">  data</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> data.password </span><span style="color:#F97583">===</span><span style="color:#E1E4E8"> data.confirm_password,</span></span>
+<span class="line"><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#E1E4E8">    message: </span><span style="color:#9ECBFF">"Passwords don't match"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    path: [</span><span style="color:#9ECBFF">'confirm_password'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">);</span></span></code></pre>
+<h3 id="pagination">Pagination</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> paginationSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  page: z.coerce.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">default</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  limit: z.coerce.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">default</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  sort: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">optional</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">  order: z.</span><span style="color:#B392F0">enum</span><span style="color:#E1E4E8">([</span><span style="color:#9ECBFF">'asc'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'desc'</span><span style="color:#E1E4E8">]).</span><span style="color:#B392F0">default</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'desc'</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<h3 id="file-upload-metadata">File Upload Metadata</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> fileUploadSchema</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> z.</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  filename: z.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">regex</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">/</span><span style="color:#F97583">^</span><span style="color:#79B8FF">[\w\-. ]</span><span style="color:#F97583">+$</span><span style="color:#9ECBFF">/</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Invalid filename"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  mimetype: z.</span><span style="color:#B392F0">enum</span><span style="color:#E1E4E8">([</span></span>
+<span class="line"><span style="color:#9ECBFF">    'image/jpeg'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    'image/png'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    'image/gif'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    'application/pdf'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  ]),</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  size: z.</span><span style="color:#B392F0">number</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">int</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">positive</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 1024</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 1024</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"File too large (max 10MB)"</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<hr>
+<h2 id="next-steps">Next Steps</h2>
+<ul>
+<li><strong><a href="./error-handling.md">Error Handling</a></strong> - Advanced error handling patterns</li>
+<li><strong><a href="./testing-guide.md">Testing Your API</a></strong> - Write comprehensive tests</li>
+<li><strong><a href="../advanced/custom-routes.md">Custom Routes</a></strong> - Add business logic beyond CRUD</li>
+</ul>
+<hr>
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><a href="https://zod.dev/">Zod Documentation</a></li>
+<li><a href="https://zod.dev/ERROR_HANDLING">Zod Error Handling</a></li>
+<li><a href="https://www.fastify.io/docs/latest/Reference/Validation-and-Serialization/">Fastify Validation</a></li>
+</ul> <nav class="mt-12 pt-8 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-4"><a href="/clarity-docs/docs/databridge/getting-started/getting-started-guide" class="group flex flex-col gap-2 p-4 rounded-lg border border-border hover:border-primary transition-colors"><span class="text-sm text-muted-foreground">Previous</span><span class="font-medium group-hover:text-primary transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>Getting Started Guide</span></a><a href="/clarity-docs/docs/databridge/getting-started/core-concepts" class="group flex flex-col gap-2 p-4 rounded-lg border border-border hover:border-primary transition-colors text-right sm:ml-auto"><span class="text-sm text-muted-foreground">Next</span><span class="font-medium group-hover:text-primary transition-colors flex items-center gap-2 justify-end">Core Concepts<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span></a></nav>  <script type="module">function r(){document.querySelectorAll("pre").forEach(t=>{if(t.querySelector(".copy-button"))return;const o=document.createElement("div");o.className="code-block-wrapper",t.parentNode?.insertBefore(o,t),o.appendChild(t);const e=document.createElement("button");e.className="copy-button",e.setAttribute("aria-label","Copy code"),e.innerHTML=`
+        <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <svg class="check-icon hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      `,e.addEventListener("click",async()=>{const n=t.querySelector("code");if(!n)return;const i=n.textContent||"";try{await navigator.clipboard.writeText(i);const c=e.querySelector(".copy-icon"),s=e.querySelector(".check-icon");c?.classList.add("hidden"),s?.classList.remove("hidden"),e.classList.add("copied"),setTimeout(()=>{c?.classList.remove("hidden"),s?.classList.add("hidden"),e.classList.remove("copied")},2e3)}catch(c){console.error("Failed to copy:",c)}}),o.appendChild(e)})}r();document.addEventListener("astro:page-load",r);</script>  <div class="mt-12 pt-8 border-t border-border"><div class="flex flex-col items-center gap-4 p-6 bg-muted/30 rounded-lg"><h3 class="text-lg font-semibold text-foreground">Was this page helpful?</h3><div class="flex gap-3" id="feedback-buttons"><button data-feedback="yes" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium flex items-center gap-2"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+Yes
+</button><button data-feedback="no" class="px-6 py-2.5 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors font-medium flex items-center gap-2"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path></svg>
+No
+</button></div><div id="feedback-message" class="hidden text-center"><p class="text-sm text-muted-foreground">Thank you for your feedback!</p></div><div id="feedback-form" class="hidden w-full max-w-md"><textarea id="feedback-text" placeholder="Tell us more (optional)..." class="w-full px-4 py-3 border border-border rounded-md bg-background text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary" rows="3"></textarea><div class="flex gap-2 mt-3"><button id="submit-feedback" class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium">
+Submit
+</button><button id="skip-feedback" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors text-sm font-medium">
+Skip
+</button></div></div></div></div><script type="module">function l(){const t=document.getElementById("feedback-buttons"),s=document.getElementById("feedback-message"),n=document.getElementById("feedback-form"),m=document.querySelector('[data-feedback="yes"]'),r=document.querySelector('[data-feedback="no"]'),u=document.getElementById("submit-feedback"),f=document.getElementById("skip-feedback"),k=document.getElementById("feedback-text");if(!t||!s||!n)return;let c="";function d(){t?.classList.add("hidden"),n?.classList.add("hidden"),s?.classList.remove("hidden")}function b(e){c=e,t?.classList.add("hidden"),n?.classList.remove("hidden")}m?.addEventListener("click",()=>{a("yes",""),d()}),r?.addEventListener("click",()=>{b("no")}),u?.addEventListener("click",()=>{const e=k?.value||"";a(c,e),d()}),f?.addEventListener("click",()=>{a(c,""),d()});function a(e,g){const o={helpful:e,comment:g,page:window.location.pathname,timestamp:new Date().toISOString()};console.log("Feedback:",o);const i=JSON.parse(localStorage.getItem("clarity-feedback")||"[]");i.push(o),localStorage.setItem("clarity-feedback",JSON.stringify(i))}}l();document.addEventListener("astro:page-load",l);</script>  <div class="mt-8 pt-8 border-t border-border"><a href="https://github.com/alex-migwi/clarity/edit/main/src/content/docs/databridge/development/validation-guide.md" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>Edit this page on GitHub</a></div> </article> <aside class="hidden xl:block w-64 flex-shrink-0"> <div class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto"> <h2 class="font-semibold mb-4 text-sm">
+On this page
+</h2> <nav class="text-sm" id="table-of-contents"> <ul class="space-y-2.5"> <li class="pl-0 relative"> <a href="#validation-with-zod" data-toc-link data-target="validation-with-zod" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Validation with Zod </a> </li><li class="pl-3 relative"> <a href="#overview" data-toc-link data-target="overview" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Overview </a> </li><li class="pl-3 relative"> <a href="#auto-generated-schemas" data-toc-link data-target="auto-generated-schemas" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Auto-Generated Schemas </a> </li><li class="pl-6 relative"> <a href="#prisma-to-zod-mapping" data-toc-link data-target="prisma-to-zod-mapping" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Prisma to Zod Mapping </a> </li><li class="pl-6 relative"> <a href="#example-generated-schema" data-toc-link data-target="example-generated-schema" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Example Generated Schema </a> </li><li class="pl-3 relative"> <a href="#customizing-validation-rules" data-toc-link data-target="customizing-validation-rules" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Customizing Validation Rules </a> </li><li class="pl-6 relative"> <a href="#string-validation" data-toc-link data-target="string-validation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> String Validation </a> </li><li class="pl-6 relative"> <a href="#number-validation" data-toc-link data-target="number-validation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Number Validation </a> </li><li class="pl-6 relative"> <a href="#boolean-validation" data-toc-link data-target="boolean-validation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Boolean Validation </a> </li><li class="pl-6 relative"> <a href="#date-validation" data-toc-link data-target="date-validation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Date Validation </a> </li><li class="pl-6 relative"> <a href="#enum-validation" data-toc-link data-target="enum-validation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Enum Validation </a> </li><li class="pl-3 relative"> <a href="#advanced-validation-patterns" data-toc-link data-target="advanced-validation-patterns" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Advanced Validation Patterns </a> </li><li class="pl-6 relative"> <a href="#conditional-validation" data-toc-link data-target="conditional-validation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Conditional Validation </a> </li><li class="pl-6 relative"> <a href="#cross-field-validation" data-toc-link data-target="cross-field-validation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Cross-Field Validation </a> </li><li class="pl-6 relative"> <a href="#array-validation" data-toc-link data-target="array-validation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Array Validation </a> </li><li class="pl-6 relative"> <a href="#nested-objects" data-toc-link data-target="nested-objects" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Nested Objects </a> </li><li class="pl-3 relative"> <a href="#using-validation-in-routes" data-toc-link data-target="using-validation-in-routes" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Using Validation in Routes </a> </li><li class="pl-6 relative"> <a href="#basic-usage" data-toc-link data-target="basic-usage" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Basic Usage </a> </li><li class="pl-6 relative"> <a href="#partial-updates-patch" data-toc-link data-target="partial-updates-patch" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Partial Updates (PATCH) </a> </li><li class="pl-6 relative"> <a href="#query-parameters" data-toc-link data-target="query-parameters" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Query Parameters </a> </li><li class="pl-3 relative"> <a href="#error-handling" data-toc-link data-target="error-handling" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Error Handling </a> </li><li class="pl-6 relative"> <a href="#validation-error-response" data-toc-link data-target="validation-error-response" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Validation Error Response </a> </li><li class="pl-6 relative"> <a href="#custom-error-messages" data-toc-link data-target="custom-error-messages" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Custom Error Messages </a> </li><li class="pl-6 relative"> <a href="#formatting-error-responses" data-toc-link data-target="formatting-error-responses" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Formatting Error Responses </a> </li><li class="pl-3 relative"> <a href="#best-practices" data-toc-link data-target="best-practices" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Best Practices </a> </li><li class="pl-6 relative"> <a href="#do" data-toc-link data-target="do" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> DO ✅ </a> </li><li class="pl-6 relative"> <a href="#dont" data-toc-link data-target="dont" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> DON’T ❌ </a> </li><li class="pl-3 relative"> <a href="#testing-validation" data-toc-link data-target="testing-validation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Testing Validation </a> </li><li class="pl-6 relative"> <a href="#unit-tests" data-toc-link data-target="unit-tests" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Unit Tests </a> </li><li class="pl-6 relative"> <a href="#integration-tests" data-toc-link data-target="integration-tests" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Integration Tests </a> </li><li class="pl-3 relative"> <a href="#common-patterns" data-toc-link data-target="common-patterns" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Common Patterns </a> </li><li class="pl-6 relative"> <a href="#email--password-registration" data-toc-link data-target="email--password-registration" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Email + Password Registration </a> </li><li class="pl-6 relative"> <a href="#pagination" data-toc-link data-target="pagination" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Pagination </a> </li><li class="pl-6 relative"> <a href="#file-upload-metadata" data-toc-link data-target="file-upload-metadata" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> File Upload Metadata </a> </li><li class="pl-3 relative"> <a href="#next-steps" data-toc-link data-target="next-steps" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Next Steps </a> </li><li class="pl-3 relative"> <a href="#additional-resources" data-toc-link data-target="additional-resources" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Additional Resources </a> </li> </ul> </nav> <script type="module">function a(){const r=document.querySelectorAll("[data-toc-link]"),o=Array.from(document.querySelectorAll("h1, h2, h3, h4, h5, h6")).filter(t=>t.id);if(r.length===0||o.length===0)return;const s=new IntersectionObserver(t=>{t.forEach(n=>{const d=n.target.getAttribute("id"),e=document.querySelector(`[data-target="${d}"]`);n.isIntersecting&&(r.forEach(i=>{i.classList.remove("text-primary","border-primary","font-medium"),i.classList.add("text-muted-foreground","border-transparent")}),e&&(e.classList.remove("text-muted-foreground","border-transparent"),e.classList.add("text-primary","border-primary","font-medium")))})},{rootMargin:"-100px 0px -66%",threshold:0});o.forEach(t=>s.observe(t))}a();document.addEventListener("astro:page-load",a);</script> </div> </aside> </div> <footer class="mt-20 border-t border-border py-8 text-sm text-muted-foreground"> <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> <div class="flex flex-col md:flex-row justify-between items-center gap-4"> <p>© 2025 DataBridge Docs. All rights reserved.</p> <nav class="flex flex-wrap gap-6 justify-center"> <a href="https://alex-migwi.github.io/databridge-docs" class="hover:text-foreground transition-colors"> Documentation </a><a href="https://github.com/alex-migwi/databridge" class="hover:text-foreground transition-colors"> GitHub </a><a href="/privacy" class="hover:text-foreground transition-colors"> Privacy Policy </a><a href="/terms" class="hover:text-foreground transition-colors"> Terms of Service </a> </nav> </div> </div> </footer> </main> </div> <script type="module">const e=document.getElementById("sidebar"),t=document.getElementById("sidebar-backdrop"),d=document.getElementById("sidebar-toggle");function s(){if(!e||!t)return;!e.classList.contains("-translate-x-full")?(e.classList.add("-translate-x-full"),t.classList.add("hidden"),document.body.style.overflow=""):(e.classList.remove("-translate-x-full"),t.classList.remove("hidden"),document.body.style.overflow="hidden")}d?.addEventListener("click",s);t?.addEventListener("click",s);</script> <script type="module" src="/clarity-docs/_astro/Mermaid.astro_astro_type_script_index_0_lang.Baj3h8WC.js"></script> </body></html>
