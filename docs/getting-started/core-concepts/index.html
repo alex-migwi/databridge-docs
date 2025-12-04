@@ -1,0 +1,933 @@
+<!DOCTYPE html><html lang="en" class="scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta name="description" content="Understanding the key technologies and patterns behind DataBridge - CLI frameworks, Prisma, code generation, and type safety"><meta name="author" content="DataBridge Docs"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://alex-migwi.github.io/databridge-docs/docs/getting-started/core-concepts/"><meta property="og:title" content="Core Concepts - DataBridge Docs"><meta property="og:description" content="Understanding the key technologies and patterns behind DataBridge - CLI frameworks, Prisma, code generation, and type safety"><meta property="og:site_name" content="DataBridge Docs"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://alex-migwi.github.io/databridge-docs/docs/getting-started/core-concepts/"><meta name="twitter:title" content="Core Concepts - DataBridge Docs"><meta name="twitter:description" content="Understanding the key technologies and patterns behind DataBridge - CLI frameworks, Prisma, code generation, and type safety"><!-- Canonical URL --><link rel="canonical" href="https://alex-migwi.github.io/databridge-docs/docs/getting-started/core-concepts/"><title>Core Concepts - DataBridge Docs</title><script>
+            // Theme initialization - must run before page renders
+            (function() {
+                const getThemePreference = () => {
+                    if (
+                        typeof localStorage !== "undefined" &&
+                        localStorage.getItem("theme")
+                    ) {
+                        return localStorage.getItem("theme");
+                    }
+                    return window.matchMedia("(prefers-color-scheme: dark)").matches
+                        ? "dark"
+                        : "light";
+                };
+                const theme = getThemePreference();
+                if (theme === "dark") {
+                    document.documentElement.classList.add("dark");
+                } else {
+                    document.documentElement.classList.remove("dark");
+                }
+            })();
+
+            if (typeof localStorage !== "undefined") {
+                const observer = new MutationObserver(() => {
+                    const isDark =
+                        document.documentElement.classList.contains("dark");
+                    localStorage.setItem("theme", isDark ? "dark" : "light");
+                });
+                observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ["class"],
+                });
+            }
+        </script><link rel="stylesheet" href="/databridge-docs/_astro/dashboard.yRg8Cl78.css">
+<style>.code-block-wrapper[data-astro-cid-a3hy7aej]{position:relative;margin:1.5rem 0}.copy-button[data-astro-cid-a3hy7aej]{position:absolute;top:.5rem;right:.5rem;padding:.5rem;border-radius:.375rem;background:hsl(var(--muted));border:1px solid hsl(var(--border));color:hsl(var(--muted-foreground));cursor:pointer;opacity:0;transition:opacity .2s,background .2s,color .2s;z-index:10}.code-block-wrapper[data-astro-cid-a3hy7aej]:hover .copy-button[data-astro-cid-a3hy7aej]{opacity:1}.copy-button[data-astro-cid-a3hy7aej]:hover{background:hsl(var(--accent));color:hsl(var(--accent-foreground))}.copy-button[data-astro-cid-a3hy7aej].copied{background:hsl(var(--primary));color:hsl(var(--primary-foreground))}.copy-button[data-astro-cid-a3hy7aej] svg[data-astro-cid-a3hy7aej]{width:16px;height:16px;display:block}.hidden[data-astro-cid-a3hy7aej]{display:none}
+</style></head> <body class="bg-background text-foreground min-h-screen flex flex-col"> <header class="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60"> <div class="flex h-16 items-center px-4 sm:px-6 lg:px-8"> <button id="sidebar-toggle" class="mr-4 md:hidden p-2 text-muted-foreground hover:text-foreground"> <span class="sr-only">Open sidebar</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path> </svg> </button> <div class="flex items-center gap-2 font-bold text-xl tracking-tight"> <a href="/databridge-docs/" class="flex items-center gap-3 hover:opacity-80 transition-opacity"> <img src="/databridge-docs/logo.svg" alt="DataBridge Docs" class="h-8 w-8"> <span class="text-foreground">DataBridge Docs</span> </a> </div> <div class="flex-1"></div> <div class="flex items-center gap-4"> <div class="hidden md:block w-64"> <div class="relative" data-astro-cid-otpdt6jm> <button id="search-trigger" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground bg-muted/50 rounded-md border border-border hover:border-primary transition-colors" data-astro-cid-otpdt6jm> <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-otpdt6jm> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" data-astro-cid-otpdt6jm></path> </svg> <span data-astro-cid-otpdt6jm>Search...</span> <kbd class="ml-auto px-2 py-0.5 text-xs bg-background border border-border rounded" data-astro-cid-otpdt6jm>⌘K</kbd> </button> </div> <!-- Search Modal - Portal to body level --> <teleport-search-modal data-astro-cid-otpdt6jm="true"> <div id="search-modal" class="hidden fixed inset-0 z-[9999] overflow-y-auto" style="z-index: 9999 !important;" data-astro-cid-otpdt6jm> <div class="flex min-h-screen items-start justify-center p-4 pt-20" data-astro-cid-otpdt6jm> <div class="fixed inset-0 bg-background/80 backdrop-blur-sm" id="search-backdrop" data-astro-cid-otpdt6jm></div> <div class="relative w-full max-w-2xl bg-background border border-border rounded-lg shadow-lg" data-astro-cid-otpdt6jm> <div class="flex items-center gap-3 px-4 py-3 border-b border-border" data-astro-cid-otpdt6jm> <svg class="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-otpdt6jm> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" data-astro-cid-otpdt6jm></path> </svg> <input id="search-input" type="text" placeholder="Search documentation..." class="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground" autocomplete="off" data-astro-cid-otpdt6jm> <button id="search-close" class="text-muted-foreground hover:text-foreground" data-astro-cid-otpdt6jm> <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-otpdt6jm> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" data-astro-cid-otpdt6jm></path> </svg> </button> </div> <div id="search-results" class="max-h-[60vh] overflow-y-auto p-2" data-astro-cid-otpdt6jm> <div class="px-4 py-8 text-center text-muted-foreground" data-astro-cid-otpdt6jm>
+Start typing to search...
+</div> </div> </div> </div> <script type="module">const u=document.querySelector("teleport-search-modal");if(u){const e=u.querySelector("#search-modal");e&&(document.body.appendChild(e),u.remove())}const c=document.getElementById("search-modal"),b=document.getElementById("search-trigger"),E=document.getElementById("search-close"),C=document.getElementById("search-backdrop"),h=document.getElementById("search-input"),s=document.getElementById("search-results");let x=[],o=-1;async function M(){try{x=await(await fetch("/databridge-docs/search-index.json")).json()}catch(e){console.error("Failed to load search index:",e)}}function I(e){if(!e.trim()){s.innerHTML='<div class="px-4 py-8 text-center text-muted-foreground">Start typing to search...</div>';return}const n=e.toLowerCase(),d=x.filter(t=>t.title&&t.title.toLowerCase().includes(n)||t.description&&t.description.toLowerCase().includes(n)||t.content&&t.content.toLowerCase().includes(n)).slice(0,10);if(d.length===0){s.innerHTML='<div class="px-4 py-8 text-center text-muted-foreground">No results found</div>';return}function g(t,r){if(!t||!r)return t||"";const a=r.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),i=new RegExp(`(${a})`,"gi");return t.replace(i,'<mark class="bg-primary/20 text-foreground rounded px-0.5">$1</mark>')}function L(t,r){if(!t)return"";const a=t.toLowerCase(),i=r.toLowerCase(),l=a.indexOf(i);if(l===-1)return t.substring(0,150)+"...";const p=Math.max(0,l-50),y=Math.min(t.length,l+r.length+100),k=(p>0?"...":"")+t.substring(p,y)+(y<t.length?"...":"");return g(k,r)}s.innerHTML=d.map((t,r)=>`
+      <a href="/docs/${t.slug}" 
+         class="block px-4 py-3 rounded-md hover:bg-muted/50 transition-colors search-result"
+         data-index="${r}">
+        <div class="font-medium text-foreground">${g(t.title||"Untitled",n)}</div>
+        <div class="text-sm text-muted-foreground line-clamp-2 mt-1">${L(t.description||t.content||"",n)}</div>
+      </a>
+    `).join(""),m()}function w(){c?.classList.remove("hidden"),h?.focus(),document.body.style.overflow="hidden",o=-1}function f(){c?.classList.add("hidden"),h.value="",s.innerHTML='<div class="px-4 py-8 text-center text-muted-foreground">Start typing to search...</div>',document.body.style.overflow="",o=-1}function m(){const e=document.querySelectorAll(".search-result");e.forEach(n=>n.classList.remove("bg-muted/50")),o>=0&&o<e.length&&(e[o].classList.add("bg-muted/50"),e[o].scrollIntoView({block:"nearest",behavior:"smooth"}))}function $(e){const n=document.querySelectorAll(".search-result");n.length!==0&&(e.key==="ArrowDown"?(e.preventDefault(),o=Math.min(o+1,n.length-1),m()):e.key==="ArrowUp"?(e.preventDefault(),o=Math.max(o-1,-1),m()):e.key==="Enter"&&o>=0&&(e.preventDefault(),n[o].click()))}b?.addEventListener("click",w);E?.addEventListener("click",f);C?.addEventListener("click",f);document.addEventListener("keydown",e=>{(e.metaKey||e.ctrlKey)&&e.key==="k"&&(e.preventDefault(),w()),e.key==="Escape"&&f(),c&&!c.classList.contains("hidden")&&$(e)});let v;h?.addEventListener("input",e=>{clearTimeout(v),v=setTimeout(()=>{I(e.target.value)},300)});M();</script> </div></teleport-search-modal> </div> <nav class="flex items-center gap-4">  <button id="theme-toggle" type="button" class="inline-flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" aria-label="Toggle theme"> <!-- Sun Icon (Shows in Dark Mode) --> <svg id="sun-icon" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path> </svg> <!-- Moon Icon (Shows in Light Mode) --> <svg id="moon-icon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path> </svg> </button> <script>
+    const updateIcons = () => {
+        const isDark = document.documentElement.classList.contains("dark");
+        const sunIcon = document.getElementById("sun-icon");
+        const moonIcon = document.getElementById("moon-icon");
+        
+        if (isDark) {
+            sunIcon?.classList.remove("hidden");
+            moonIcon?.classList.add("hidden");
+        } else {
+            sunIcon?.classList.add("hidden");
+            moonIcon?.classList.remove("hidden");
+        }
+    };
+    
+    const handleToggleClick = () => {
+        const element = document.documentElement;
+        element.classList.toggle("dark");
+
+        const isDark = element.classList.contains("dark");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        
+        updateIcons();
+    };
+
+    document
+        .getElementById("theme-toggle")
+        ?.addEventListener("click", handleToggleClick);
+    
+    // Initialize icons on page load
+    updateIcons();
+</script> </nav> </div> </div> </header> <div class="flex flex-1 pt-16"> <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 transform bg-background border-r border-border transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 md:sticky md:top-16 md:h-[calc(100vh-4rem)] md:overflow-y-auto pt-16 md:pt-0"> <nav class="h-full px-4 py-6 overflow-y-auto"> <ul class="space-y-1"> <li class="mt-1"> <a href="/databridge-docs/docs/index" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> DataBridge Documentation </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/introduction" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Introduction to DataBridge </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/changelog" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Changelog </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/releases" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Releases </a>  </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Advanced </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/databridge-docs/docs/advanced/cli-development-part-1" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> CLI Development - Part 1 </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/advanced/cli-development-part-2" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> CLI Development - Part 2 </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/advanced/cli-development-part-3" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> CLI Development - Part 3 </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/advanced/docusaurus-setup" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Docusaurus Setup </a>  </li> </ul> </div> </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Deployment </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/databridge-docs/docs/deployment/production-deployment" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Production Deployment </a>  </li> </ul> </div> </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Development </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/databridge-docs/docs/development/understanding-generated-code" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Understanding Generated Code </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/development/validation-guide" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Validation with Zod </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/development/testing-guide" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Testing Your API </a>  </li> </ul> </div> </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Getting Started </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/databridge-docs/docs/getting-started/database-setup" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Database Connection Setup </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/getting-started/quick-start" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Quick Start Guide </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/getting-started/getting-started-guide" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Getting Started Guide </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/getting-started/core-concepts" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 bg-primary/10 text-primary font-medium"> Core Concepts </a>  </li> </ul> </div> </li> </ul> </nav> </aside> <div id="sidebar-backdrop" class="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden hidden" aria-hidden="true"></div> <main class="flex-1 min-w-0"> <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex gap-10"> <article class="flex-1 prose dark:prose-invert max-w-4xl prose-headings:scroll-mt-20 prose-a:text-primary hover:prose-a:text-primary/80"> <nav class="flex items-center gap-2 text-sm text-muted-foreground mb-6"> <a href="/databridge-docs/" class="hover:text-foreground transition-colors">Home</a>  <span class="mx-1">/</span> <a href="/databridge-docs/docs/getting-started" class="hover:text-foreground transition-colors"> Getting Started </a> <span class="mx-1">/</span> <span class="text-foreground font-medium">Core Concepts</span> </nav> <div class="not-prose mb-10"> <h1 class="text-3xl font-semibold mb-4 text-foreground"> Core Concepts </h1> <p class="text-lg text-muted-foreground leading-relaxed"> Understanding the key technologies and patterns behind DataBridge - CLI frameworks, Prisma, code generation, and type safety </p> </div>  <h1 id="core-concepts">Core Concepts</h1>
+<p>Understanding the key technologies and patterns used in DataBridge.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#cli-frameworks">CLI Frameworks</a></li>
+<li><a href="#database-introspection">Database Introspection</a></li>
+<li><a href="#code-generation">Code Generation</a></li>
+<li><a href="#web-frameworks">Web Frameworks</a></li>
+<li><a href="#typescript-patterns">TypeScript Patterns</a></li>
+<li><a href="#monorepo-architecture">Monorepo Architecture</a></li>
+</ol>
+<hr>
+<h2 id="cli-frameworks">CLI Frameworks</h2>
+<h3 id="what-is-a-cli">What is a CLI?</h3>
+<p><strong>CLI (Command-Line Interface)</strong> is a text-based program that runs in a terminal.</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li><code>git commit -m "message"</code> - Git CLI</li>
+<li><code>npm install package</code> - npm CLI</li>
+<li><code>databridge generate</code> - DataBridge CLI</li>
+</ul>
+<h3 id="anatomy-of-a-cli-command">Anatomy of a CLI Command</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>databridge generate --db mysql://localhost:3306/mydb</span></span>
+<span class="line"><span>│          │         │</span></span>
+<span class="line"><span>│          │         └─ Flag (optional parameter)</span></span>
+<span class="line"><span>│          └─ Command (action to perform)</span></span>
+<span class="line"><span>└─ Program name</span></span></code></pre>
+<h3 id="why-oclif">Why oclif?</h3>
+<p><strong>oclif</strong> (Open CLI Framework) by Heroku is industry-standard for building CLIs.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li><strong>Auto-discovery:</strong> Finds commands in <code>src/commands/</code> automatically</li>
+<li><strong>Flag parsing:</strong> Handles <code>--flag value</code> and <code>-f value</code></li>
+<li><strong>Help generation:</strong> Creates help text from your code</li>
+<li><strong>Plugin system:</strong> Extensible architecture</li>
+<li><strong>TypeScript:</strong> First-class TypeScript support</li>
+</ul>
+<p><strong>Alternatives:</strong></p>
+<ul>
+<li><strong>Commander.js</strong> - Simpler but manual setup</li>
+<li><strong>Yargs</strong> - Good for Node.js scripts</li>
+<li><strong>Inquirer</strong> - Only for prompts (we use this with oclif)</li>
+</ul>
+<h3 id="oclif-command-structure">oclif Command Structure</h3>
+<p>Every oclif command extends the <code>Command</code> class:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Command, Flags } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@oclif/core'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> default</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MyCommand</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Command</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  // Shown in help text</span></span>
+<span class="line"><span style="color:#F97583">  static</span><span style="color:#FFAB70"> description</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> 'Does something cool'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Optional parameters</span></span>
+<span class="line"><span style="color:#F97583">  static</span><span style="color:#FFAB70"> flags</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    name: Flags.</span><span style="color:#B392F0">string</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      char: </span><span style="color:#9ECBFF">'n'</span><span style="color:#E1E4E8">,              </span><span style="color:#6A737D">// Short form: -n</span></span>
+<span class="line"><span style="color:#E1E4E8">      description: </span><span style="color:#9ECBFF">'Your name'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      required: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      default: </span><span style="color:#9ECBFF">'World'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    }),</span></span>
+<span class="line"><span style="color:#E1E4E8">    force: Flags.</span><span style="color:#B392F0">boolean</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      char: </span><span style="color:#9ECBFF">'f'</span><span style="color:#E1E4E8">,              </span><span style="color:#6A737D">// Short form: -f</span></span>
+<span class="line"><span style="color:#E1E4E8">      description: </span><span style="color:#9ECBFF">'Force operation'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      default: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    }),</span></span>
+<span class="line"><span style="color:#E1E4E8">  };</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Required arguments (positional)</span></span>
+<span class="line"><span style="color:#F97583">  static</span><span style="color:#FFAB70"> args</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#E1E4E8">    {</span></span>
+<span class="line"><span style="color:#E1E4E8">      name: </span><span style="color:#9ECBFF">'file'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      description: </span><span style="color:#9ECBFF">'File to process'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      required: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    },</span></span>
+<span class="line"><span style="color:#E1E4E8">  ];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // Main function - runs when command is called</span></span>
+<span class="line"><span style="color:#F97583">  async</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#79B8FF">void</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">args</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">flags</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#F97583"> await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(MyCommand);</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Hello ${</span><span style="color:#E1E4E8">flags</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}!`</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Processing file: ${</span><span style="color:#E1E4E8">args</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">file</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (flags.force) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Force mode enabled'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>Usage:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">databridge</span><span style="color:#9ECBFF"> mycommand</span><span style="color:#9ECBFF"> myfile.txt</span><span style="color:#79B8FF"> --name</span><span style="color:#9ECBFF"> Alice</span><span style="color:#79B8FF"> --force</span></span>
+<span class="line"><span style="color:#6A737D"># Output:</span></span>
+<span class="line"><span style="color:#6A737D"># Hello Alice!</span></span>
+<span class="line"><span style="color:#6A737D"># Processing file: myfile.txt</span></span>
+<span class="line"><span style="color:#6A737D"># Force mode enabled</span></span></code></pre>
+<h3 id="databridge-commands">DataBridge Commands</h3>
+<p>DataBridge has 4 main commands:</p>
+<ol>
+<li><strong><code>databridge init</code></strong> - Initialize project (creates config files)</li>
+<li><strong><code>databridge introspect</code></strong> - Read database structure into Prisma schema</li>
+<li><strong><code>databridge generate</code></strong> - Generate API, services, and run Prisma Client generation automatically</li>
+<li><strong><code>databridge serve</code></strong> - Start the development server (deprecated - use <code>npm run dev</code> instead)</li>
+</ol>
+<h3 id="interactive-prompts-with-inquirer">Interactive Prompts with inquirer</h3>
+<p><strong>inquirer</strong> asks users questions interactively:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> inquirer </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'inquirer'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> answers</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> inquirer.</span><span style="color:#B392F0">prompt</span><span style="color:#E1E4E8">([</span></span>
+<span class="line"><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#E1E4E8">    type: </span><span style="color:#9ECBFF">'input'</span><span style="color:#E1E4E8">,           </span><span style="color:#6A737D">// Text input</span></span>
+<span class="line"><span style="color:#E1E4E8">    name: </span><span style="color:#9ECBFF">'username'</span><span style="color:#E1E4E8">,        </span><span style="color:#6A737D">// Key in answers object</span></span>
+<span class="line"><span style="color:#E1E4E8">    message: </span><span style="color:#9ECBFF">'Enter username:'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    default: </span><span style="color:#9ECBFF">'admin'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#B392F0">    validate</span><span style="color:#E1E4E8">: (</span><span style="color:#FFAB70">input</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (input.</span><span style="color:#79B8FF">length</span><span style="color:#F97583"> &#x3C;</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#9ECBFF"> 'Username must be at least 3 characters'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#F97583">      return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    },</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#E1E4E8">    type: </span><span style="color:#9ECBFF">'password'</span><span style="color:#E1E4E8">,        </span><span style="color:#6A737D">// Hidden input</span></span>
+<span class="line"><span style="color:#E1E4E8">    name: </span><span style="color:#9ECBFF">'password'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    message: </span><span style="color:#9ECBFF">'Enter password:'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    mask: </span><span style="color:#9ECBFF">'*'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#E1E4E8">    type: </span><span style="color:#9ECBFF">'list'</span><span style="color:#E1E4E8">,            </span><span style="color:#6A737D">// Single choice</span></span>
+<span class="line"><span style="color:#E1E4E8">    name: </span><span style="color:#9ECBFF">'role'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    message: </span><span style="color:#9ECBFF">'Select role:'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    choices: [</span><span style="color:#9ECBFF">'admin'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'user'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'guest'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#E1E4E8">    type: </span><span style="color:#9ECBFF">'checkbox'</span><span style="color:#E1E4E8">,        </span><span style="color:#6A737D">// Multiple choices</span></span>
+<span class="line"><span style="color:#E1E4E8">    name: </span><span style="color:#9ECBFF">'permissions'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    message: </span><span style="color:#9ECBFF">'Select permissions:'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    choices: [</span><span style="color:#9ECBFF">'read'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'write'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'delete'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#E1E4E8">    type: </span><span style="color:#9ECBFF">'confirm'</span><span style="color:#E1E4E8">,         </span><span style="color:#6A737D">// Yes/No</span></span>
+<span class="line"><span style="color:#E1E4E8">    name: </span><span style="color:#9ECBFF">'confirmed'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    message: </span><span style="color:#9ECBFF">'Continue?'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    default: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">]);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(answers);</span></span>
+<span class="line"><span style="color:#6A737D">// {</span></span>
+<span class="line"><span style="color:#6A737D">//   username: 'alice',</span></span>
+<span class="line"><span style="color:#6A737D">//   password: 'secret123',</span></span>
+<span class="line"><span style="color:#6A737D">//   role: 'admin',</span></span>
+<span class="line"><span style="color:#6A737D">//   permissions: ['read', 'write'],</span></span>
+<span class="line"><span style="color:#6A737D">//   confirmed: true</span></span>
+<span class="line"><span style="color:#6A737D">// }</span></span></code></pre>
+<p><strong>Prompt Types:</strong></p>
+<ul>
+<li><code>input</code> - Free text</li>
+<li><code>number</code> - Numeric input</li>
+<li><code>password</code> - Hidden text</li>
+<li><code>list</code> - Single selection</li>
+<li><code>checkbox</code> - Multiple selections</li>
+<li><code>confirm</code> - Yes/No</li>
+<li><code>editor</code> - Opens text editor</li>
+</ul>
+<hr>
+<h2 id="database-introspection">Database Introspection</h2>
+<h3 id="what-is-introspection">What is Introspection?</h3>
+<p><strong>Introspection = Reading database structure to generate code</strong></p>
+<p><strong>Real-world analogy:</strong></p>
+<ul>
+<li>You walk into a library (database)</li>
+<li>You look at the catalog (introspection)</li>
+<li>You create an index card system (generated schema)</li>
+</ul>
+<h3 id="how-prisma-introspection-works">How Prisma Introspection Works</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>MySQL Database              Prisma reads structure        schema.prisma</span></span>
+<span class="line"><span>┌─────────────────┐                                    ┌──────────────────┐</span></span>
+<span class="line"><span>│  products       │                                    │ model products { │</span></span>
+<span class="line"><span>│  - id (int PK)  │  ─────────────────────────────>   │   id Int @id     │</span></span>
+<span class="line"><span>│  - name (text)  │      Prisma introspection         │   name String    │</span></span>
+<span class="line"><span>│  - price (float)│                                    │   price Float    │</span></span>
+<span class="line"><span>└─────────────────┘                                    │ }                │</span></span>
+<span class="line"><span>                                                       └──────────────────┘</span></span></code></pre>
+<p><strong>What Prisma reads:</strong></p>
+<ul>
+<li>Table names → Model names</li>
+<li>Column names → Field names</li>
+<li>Data types → Prisma types</li>
+<li>Primary keys → <code>@id</code></li>
+<li>Foreign keys → <code>@relation</code></li>
+<li>Unique constraints → <code>@unique</code></li>
+<li>Default values → <code>@default</code></li>
+<li>Indexes → <code>@@index</code></li>
+</ul>
+<h3 id="prisma-schema-format">Prisma Schema Format</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="prisma"><code><span class="line"><span style="color:#6A737D">// Data source (database connection)</span></span>
+<span class="line"><span style="color:#F97583">datasource</span><span style="color:#B392F0"> db</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  provider </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "mysql"</span></span>
+<span class="line"><span style="color:#E1E4E8">  url      </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> env</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"DATABASE_URL"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Client generator (creates Prisma Client for queries)</span></span>
+<span class="line"><span style="color:#F97583">generator</span><span style="color:#B392F0"> client</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  provider </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "prisma-client-js"</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Model (represents a table)</span></span>
+<span class="line"><span style="color:#F97583">model</span><span style="color:#B392F0"> Product</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  id          </span><span style="color:#79B8FF">Int</span><span style="color:#B392F0">       @id</span><span style="color:#B392F0"> @default</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">autoincrement</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">  name        </span><span style="color:#79B8FF">String</span><span style="color:#B392F0">    @db.VarChar</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">255</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  description </span><span style="color:#79B8FF">String</span><span style="color:#F97583">?</span><span style="color:#B392F0">   @db.Text</span></span>
+<span class="line"><span style="color:#E1E4E8">  price       </span><span style="color:#79B8FF">Decimal</span><span style="color:#B392F0">   @db.Decimal</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  stock       </span><span style="color:#79B8FF">Int</span><span style="color:#B392F0">       @default</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  categoryId  </span><span style="color:#79B8FF">Int</span></span>
+<span class="line"><span style="color:#E1E4E8">  createdAt   </span><span style="color:#79B8FF">DateTime</span><span style="color:#B392F0">  @default</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">now</span><span style="color:#E1E4E8">()) </span><span style="color:#B392F0">@map</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"created_at"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Relation to Category</span></span>
+<span class="line"><span style="color:#E1E4E8">  category    </span><span style="color:#79B8FF">Category</span><span style="color:#B392F0">  @relation</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fields</span><span style="color:#E1E4E8">: [</span><span style="color:#79B8FF">categoryId</span><span style="color:#E1E4E8">], </span><span style="color:#FFAB70">references</span><span style="color:#E1E4E8">: [</span><span style="color:#79B8FF">id</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#B392F0">  @@index</span><span style="color:#E1E4E8">([</span><span style="color:#79B8FF">categoryId</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"><span style="color:#B392F0">  @@map</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"products"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">model</span><span style="color:#B392F0"> Category</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  id       </span><span style="color:#79B8FF">Int</span><span style="color:#B392F0">       @id</span><span style="color:#B392F0"> @default</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">autoincrement</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">  name     </span><span style="color:#79B8FF">String</span><span style="color:#B392F0">    @unique</span></span>
+<span class="line"><span style="color:#E1E4E8">  products </span><span style="color:#79B8FF">Product</span><span style="color:#F97583">[]</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#B392F0">  @@map</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"categories"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>Key concepts:</strong></p>
+<ul>
+<li><code>@id</code> - Primary key</li>
+<li><code>@default(autoincrement())</code> - Auto-increment</li>
+<li><code>@unique</code> - Unique constraint</li>
+<li><code>@relation</code> - Foreign key relationship</li>
+<li><code>@map</code> - Custom column name</li>
+<li><code>@@map</code> - Custom table name</li>
+<li><code>@@index</code> - Database index</li>
+<li><code>?</code> after type - Optional field</li>
+</ul>
+<h3 id="running-introspection">Running Introspection</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># Set database URL</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> DATABASE_URL</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"mysql://root:password@localhost:3306/mydb"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Run introspection (updates schema.prisma)</span></span>
+<span class="line"><span style="color:#B392F0">npx</span><span style="color:#9ECBFF"> prisma</span><span style="color:#9ECBFF"> db</span><span style="color:#9ECBFF"> pull</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Generate Prisma Client (creates JavaScript/TypeScript code)</span></span>
+<span class="line"><span style="color:#B392F0">npx</span><span style="color:#9ECBFF"> prisma</span><span style="color:#9ECBFF"> generate</span></span></code></pre>
+<h3 id="type-mappings">Type Mappings</h3>
+<p><strong>MySQL → Prisma:</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>MySQL Type</th><th>Prisma Type</th><th>TypeScript Type</th></tr></thead><tbody><tr><td>INT</td><td>Int</td><td>number</td></tr><tr><td>BIGINT</td><td>BigInt</td><td>bigint</td></tr><tr><td>FLOAT</td><td>Float</td><td>number</td></tr><tr><td>DOUBLE</td><td>Float</td><td>number</td></tr><tr><td>DECIMAL</td><td>Decimal</td><td>Prisma.Decimal</td></tr><tr><td>VARCHAR</td><td>String</td><td>string</td></tr><tr><td>TEXT</td><td>String</td><td>string</td></tr><tr><td>BOOLEAN</td><td>Boolean</td><td>boolean</td></tr><tr><td>DATE</td><td>DateTime</td><td>Date</td></tr><tr><td>TIMESTAMP</td><td>DateTime</td><td>Date</td></tr><tr><td>JSON</td><td>Json</td><td>any</td></tr><tr><td>ENUM</td><td>Enum</td><td>union type</td></tr></tbody></table>
+<hr>
+<h2 id="code-generation">Code Generation</h2>
+<h3 id="what-is-code-generation">What is Code Generation?</h3>
+<p><strong>Code generation = Writing code that writes code</strong></p>
+<p><strong>Why?</strong></p>
+<ul>
+<li>Eliminate repetitive tasks</li>
+<li>Ensure consistency</li>
+<li>Save developer time</li>
+<li>Reduce human errors</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>React component generators</li>
+<li>Prisma Client generation</li>
+<li>GraphQL schema generators</li>
+<li>DataBridge API/SDK generation</li>
+</ul>
+<h3 id="ast-abstract-syntax-tree">AST (Abstract Syntax Tree)</h3>
+<p><strong>AST is a tree representation of code structure.</strong></p>
+<p><strong>Example code:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">a</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">b</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> a </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> b;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>AST representation:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="json"><code><span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#79B8FF">  "type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"FunctionDeclaration"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">  "name"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"add"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">  "parameters"</span><span style="color:#E1E4E8">: [</span></span>
+<span class="line"><span style="color:#E1E4E8">    { </span><span style="color:#79B8FF">"name"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"a"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"number"</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">    { </span><span style="color:#79B8FF">"name"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"b"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"number"</span><span style="color:#E1E4E8"> }</span></span>
+<span class="line"><span style="color:#E1E4E8">  ],</span></span>
+<span class="line"><span style="color:#79B8FF">  "returnType"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"number"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">  "body"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">    "type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"ReturnStatement"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">    "expression"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">      "type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"BinaryExpression"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "operator"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"+"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      "left"</span><span style="color:#E1E4E8">: { </span><span style="color:#79B8FF">"name"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"a"</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#79B8FF">      "right"</span><span style="color:#E1E4E8">: { </span><span style="color:#79B8FF">"name"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"b"</span><span style="color:#E1E4E8"> }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="ts-morph-typescript-manipulation">ts-morph (TypeScript Manipulation)</h3>
+<p><strong>ts-morph lets you create/modify TypeScript code programmatically.</strong></p>
+<p><strong>Basic example:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Project } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'ts-morph'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Create in-memory TypeScript project</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> project</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Project</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Add new file</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> sourceFile</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">createSourceFile</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'example.ts'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Add import</span></span>
+<span class="line"><span style="color:#E1E4E8">sourceFile.</span><span style="color:#B392F0">addImportDeclaration</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  namedImports: [</span><span style="color:#9ECBFF">'Component'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">  moduleSpecifier: </span><span style="color:#9ECBFF">'@angular/core'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Add class with decorator</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> myClass</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> sourceFile.</span><span style="color:#B392F0">addClass</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  name: </span><span style="color:#9ECBFF">'MyComponent'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  isExported: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  decorators: [{</span></span>
+<span class="line"><span style="color:#E1E4E8">    name: </span><span style="color:#9ECBFF">'Component'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    arguments: [</span><span style="color:#9ECBFF">`{ selector: 'app-my' }`</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">  }],</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Add property</span></span>
+<span class="line"><span style="color:#E1E4E8">myClass.</span><span style="color:#B392F0">addProperty</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  name: </span><span style="color:#9ECBFF">'title'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  type: </span><span style="color:#9ECBFF">'string'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  initializer: </span><span style="color:#9ECBFF">'"Hello World"'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Add method</span></span>
+<span class="line"><span style="color:#E1E4E8">myClass.</span><span style="color:#B392F0">addMethod</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  name: </span><span style="color:#9ECBFF">'ngOnInit'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  returnType: </span><span style="color:#9ECBFF">'void'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  statements: </span><span style="color:#9ECBFF">'console.log(this.title);'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Save to disk</span></span>
+<span class="line"><span style="color:#F97583">await</span><span style="color:#E1E4E8"> sourceFile.</span><span style="color:#B392F0">save</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<p><strong>Generated code:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Component } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@angular/core'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#B392F0">Component</span><span style="color:#E1E4E8">({ selector: </span><span style="color:#9ECBFF">'app-my'</span><span style="color:#E1E4E8"> })</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MyComponent</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#FFAB70">  title</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "Hello World"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#B392F0">  ngOnInit</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> void</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.title);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="template-based-generation">Template-Based Generation</h3>
+<p><strong>Alternative to AST: string templates</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> generateService</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">modelName</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#9ECBFF"> `</span></span>
+<span class="line"><span style="color:#9ECBFF">import { Injectable } from '@angular/core';</span></span>
+<span class="line"><span style="color:#9ECBFF">import { HttpClient } from '@angular/common/http';</span></span>
+<span class="line"><span style="color:#9ECBFF">import { Observable } from 'rxjs';</span></span>
+<span class="line"><span style="color:#9ECBFF">import { ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">} } from '../models/${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">.</span><span style="color:#B392F0">toLowerCase</span><span style="color:#9ECBFF">()</span><span style="color:#9ECBFF">}';</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">@Injectable({ providedIn: 'root' })</span></span>
+<span class="line"><span style="color:#9ECBFF">export class ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}Service {</span></span>
+<span class="line"><span style="color:#9ECBFF">  private url = '/api/${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">.</span><span style="color:#B392F0">toLowerCase</span><span style="color:#9ECBFF">()</span><span style="color:#9ECBFF">}';</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">  constructor(private http: HttpClient) {}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">  list(): Observable&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}[]> {</span></span>
+<span class="line"><span style="color:#9ECBFF">    return this.http.get&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}[]>(this.url);</span></span>
+<span class="line"><span style="color:#9ECBFF">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">  getById(id: number): Observable&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}> {</span></span>
+<span class="line"><span style="color:#9ECBFF">    return this.http.get&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}>(</span><span style="color:#79B8FF">\`\$</span><span style="color:#9ECBFF">{this.url}/</span><span style="color:#79B8FF">\$</span><span style="color:#9ECBFF">{id}</span><span style="color:#79B8FF">\`</span><span style="color:#9ECBFF">);</span></span>
+<span class="line"><span style="color:#9ECBFF">  }</span></span>
+<span class="line"><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#9ECBFF">  `</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Usage</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> code</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> generateService</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Product'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">fs.</span><span style="color:#B392F0">writeFileSync</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'product.service.ts'</span><span style="color:#E1E4E8">, code);</span></span></code></pre>
+<p><strong>When to use templates vs AST:</strong></p>
+<ul>
+<li><strong>Templates:</strong> Quick, simple, fixed structure</li>
+<li><strong>AST:</strong> Complex logic, conditional generation, refactoring</li>
+</ul>
+<h3 id="dmmf-data-model-meta-format">DMMF (Data Model Meta Format)</h3>
+<p><strong>DMMF is Prisma’s JSON representation of your schema.</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { getDMMF } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@prisma/internals'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> schema</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> `</span></span>
+<span class="line"><span style="color:#9ECBFF">model Product {</span></span>
+<span class="line"><span style="color:#9ECBFF">  id    Int     @id @default(autoincrement())</span></span>
+<span class="line"><span style="color:#9ECBFF">  name  String</span></span>
+<span class="line"><span style="color:#9ECBFF">  price Float</span></span>
+<span class="line"><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#9ECBFF">`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> dmmf</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#B392F0"> getDMMF</span><span style="color:#E1E4E8">({ datamodel: schema });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">stringify</span><span style="color:#E1E4E8">(dmmf, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">));</span></span></code></pre>
+<p><strong>Output:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="json"><code><span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#79B8FF">  "datamodel"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">    "models"</span><span style="color:#E1E4E8">: [</span></span>
+<span class="line"><span style="color:#E1E4E8">      {</span></span>
+<span class="line"><span style="color:#79B8FF">        "name"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Product"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">        "dbName"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">        "fields"</span><span style="color:#E1E4E8">: [</span></span>
+<span class="line"><span style="color:#E1E4E8">          {</span></span>
+<span class="line"><span style="color:#79B8FF">            "name"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"id"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "kind"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"scalar"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Int"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "isRequired"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "isId"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "default"</span><span style="color:#E1E4E8">: { </span><span style="color:#79B8FF">"name"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"autoincrement"</span><span style="color:#E1E4E8"> }</span></span>
+<span class="line"><span style="color:#E1E4E8">          },</span></span>
+<span class="line"><span style="color:#E1E4E8">          {</span></span>
+<span class="line"><span style="color:#79B8FF">            "name"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"name"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "kind"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"scalar"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"String"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "isRequired"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#E1E4E8">          },</span></span>
+<span class="line"><span style="color:#E1E4E8">          {</span></span>
+<span class="line"><span style="color:#79B8FF">            "name"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"price"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "kind"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"scalar"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Float"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "isRequired"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#E1E4E8">          }</span></span>
+<span class="line"><span style="color:#E1E4E8">        ],</span></span>
+<span class="line"><span style="color:#79B8FF">        "primaryKey"</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">        "uniqueFields"</span><span style="color:#E1E4E8">: [],</span></span>
+<span class="line"><span style="color:#79B8FF">        "uniqueIndexes"</span><span style="color:#E1E4E8">: []</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    ],</span></span>
+<span class="line"><span style="color:#79B8FF">    "enums"</span><span style="color:#E1E4E8">: []</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>Using DMMF to generate code:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> model</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> dmmf.datamodel.models) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Generating code for ${</span><span style="color:#E1E4E8">model</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#F97583">  for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> field</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> model.fields) {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> tsType</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> mapPrismaTypeToTs</span><span style="color:#E1E4E8">(field.type);</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`  ${</span><span style="color:#E1E4E8">field</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}: ${</span><span style="color:#E1E4E8">tsType</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> mapPrismaTypeToTs</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">prismaType</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> typeMap</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Record</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#79B8FF">string</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">string</span><span style="color:#E1E4E8">> </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    Int: </span><span style="color:#9ECBFF">'number'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    Float: </span><span style="color:#9ECBFF">'number'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    String: </span><span style="color:#9ECBFF">'string'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    Boolean: </span><span style="color:#9ECBFF">'boolean'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    DateTime: </span><span style="color:#9ECBFF">'Date'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  };</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> typeMap[prismaType] </span><span style="color:#F97583">||</span><span style="color:#9ECBFF"> 'any'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<hr>
+<h2 id="web-frameworks">Web Frameworks</h2>
+<h3 id="rest-api-basics">REST API Basics</h3>
+<p><strong>REST = Representational State Transfer</strong></p>
+<p><strong>HTTP Methods:</strong></p>
+<ul>
+<li><code>GET</code> - Read data (list or single item)</li>
+<li><code>POST</code> - Create new data</li>
+<li><code>PUT</code> / <code>PATCH</code> - Update existing data</li>
+<li><code>DELETE</code> - Delete data</li>
+</ul>
+<p><strong>Example endpoints:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>GET    /products       - List all products</span></span>
+<span class="line"><span>GET    /products/123   - Get product with ID 123</span></span>
+<span class="line"><span>POST   /products       - Create new product</span></span>
+<span class="line"><span>PATCH  /products/123   - Update product 123</span></span>
+<span class="line"><span>DELETE /products/123   - Delete product 123</span></span></code></pre>
+<h3 id="fastify-framework">Fastify Framework</h3>
+<p><strong>Fastify is a fast, low-overhead web framework.</strong></p>
+<p><strong>Basic server:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> Fastify </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'fastify'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> fastify</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Fastify</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  logger: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Define route</span></span>
+<span class="line"><span style="color:#E1E4E8">fastify.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/hello'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> { message: </span><span style="color:#9ECBFF">'Hello World'</span><span style="color:#E1E4E8"> };</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Start server</span></span>
+<span class="line"><span style="color:#F97583">await</span><span style="color:#E1E4E8"> fastify.</span><span style="color:#B392F0">listen</span><span style="color:#E1E4E8">({ port: </span><span style="color:#79B8FF">3000</span><span style="color:#E1E4E8"> });</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Server running on http://localhost:3000'</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p><strong>Route with parameters:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#E1E4E8">fastify.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/users/:id'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">id</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> request.params </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> { </span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8"> };</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> { userId: id };</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// GET /users/123 → { userId: "123" }</span></span></code></pre>
+<p><strong>Route with body:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#E1E4E8">fastify.</span><span style="color:#B392F0">post</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/users'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> body</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> request.body </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> { </span><span style="color:#FFAB70">name</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">; </span><span style="color:#FFAB70">email</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8"> };</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Save to database</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> user</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> db.user.</span><span style="color:#B392F0">create</span><span style="color:#E1E4E8">({ data: body });</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  reply.</span><span style="color:#B392F0">code</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">201</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// Created</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> user;</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p><strong>Query parameters:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#E1E4E8">fastify.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/search'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">q</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">limit</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> request.query </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> { </span><span style="color:#FFAB70">q</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">; </span><span style="color:#FFAB70">limit</span><span style="color:#F97583">?:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8"> };</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    query: q,</span></span>
+<span class="line"><span style="color:#E1E4E8">    limit: </span><span style="color:#B392F0">parseInt</span><span style="color:#E1E4E8">(limit </span><span style="color:#F97583">||</span><span style="color:#9ECBFF"> '10'</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">  };</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// GET /search?q=laptop&#x26;limit=5</span></span></code></pre>
+<h3 id="fastify-plugins">Fastify Plugins</h3>
+<p><strong>Plugins extend Fastify with reusable functionality.</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> fp </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'fastify-plugin'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Create plugin</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> myPlugin</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> fp</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">fastify</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">options</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  // Add method to fastify instance</span></span>
+<span class="line"><span style="color:#E1E4E8">  fastify.</span><span style="color:#B392F0">decorate</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'utility'</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#9ECBFF"> 'Utility function'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Add hook (runs on every request)</span></span>
+<span class="line"><span style="color:#E1E4E8">  fastify.</span><span style="color:#B392F0">addHook</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'onRequest'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Request: ${</span><span style="color:#E1E4E8">request</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">method</span><span style="color:#9ECBFF">} ${</span><span style="color:#E1E4E8">request</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">url</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Register plugin</span></span>
+<span class="line"><span style="color:#F97583">await</span><span style="color:#E1E4E8"> fastify.</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(myPlugin);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Use in routes</span></span>
+<span class="line"><span style="color:#E1E4E8">fastify.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/test'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> { result: fastify.</span><span style="color:#B392F0">utility</span><span style="color:#E1E4E8">() };</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p><strong>Common plugins:</strong></p>
+<ul>
+<li><code>@fastify/cors</code> - Enable CORS</li>
+<li><code>@fastify/jwt</code> - JWT authentication</li>
+<li><code>@fastify/multipart</code> - File uploads</li>
+<li><code>@fastify/rate-limit</code> - Rate limiting</li>
+<li><code>@fastify/swagger</code> - API documentation</li>
+</ul>
+<h3 id="cors-cross-origin-resource-sharing">CORS (Cross-Origin Resource Sharing)</h3>
+<p><strong>CORS allows your API to accept requests from different origins.</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> cors </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@fastify/cors'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">await</span><span style="color:#E1E4E8"> fastify.</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(cors, {</span></span>
+<span class="line"><span style="color:#E1E4E8">  origin: </span><span style="color:#9ECBFF">'*'</span><span style="color:#E1E4E8">,                    </span><span style="color:#6A737D">// Allow all origins</span></span>
+<span class="line"><span style="color:#6A737D">  // origin: 'http://localhost:4200',  // Allow specific origin</span></span>
+<span class="line"><span style="color:#6A737D">  // origin: ['http://localhost:4200', 'https://myapp.com'],  // Multiple</span></span>
+<span class="line"><span style="color:#E1E4E8">  methods: [</span><span style="color:#9ECBFF">'GET'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'POST'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'PATCH'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'DELETE'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">  credentials: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,              </span><span style="color:#6A737D">// Allow cookies</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p><strong>Why CORS is needed:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Without CORS:</span></span>
+<span class="line"><span>Angular (localhost:4200) → API (localhost:3000)</span></span>
+<span class="line"><span>❌ Browser blocks: "No 'Access-Control-Allow-Origin' header"</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>With CORS:</span></span>
+<span class="line"><span>Angular (localhost:4200) → API (localhost:3000)</span></span>
+<span class="line"><span>✅ API responds with: Access-Control-Allow-Origin: *</span></span></code></pre>
+<hr>
+<h2 id="typescript-patterns">TypeScript Patterns</h2>
+<h3 id="type-safe-api-routes">Type-Safe API Routes</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { FastifyRequest, FastifyReply } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'fastify'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">interface</span><span style="color:#B392F0"> CreateUserBody</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#FFAB70">  name</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#FFAB70">  email</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#FFAB70">  age</span><span style="color:#F97583">?:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">interface</span><span style="color:#B392F0"> UserParams</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#FFAB70">  id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">fastify.</span><span style="color:#B392F0">post</span><span style="color:#E1E4E8">&#x3C;{ </span><span style="color:#FFAB70">Body</span><span style="color:#F97583">:</span><span style="color:#B392F0"> CreateUserBody</span><span style="color:#E1E4E8"> }>(</span></span>
+<span class="line"><span style="color:#9ECBFF">  '/users'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">  async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">name</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">email</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">age</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> request.body;</span></span>
+<span class="line"><span style="color:#6A737D">    // TypeScript knows types!</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">fastify.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">&#x3C;{ </span><span style="color:#FFAB70">Params</span><span style="color:#F97583">:</span><span style="color:#B392F0"> UserParams</span><span style="color:#E1E4E8"> }>(</span></span>
+<span class="line"><span style="color:#9ECBFF">  '/users/:id'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">  async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">id</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> request.params;</span></span>
+<span class="line"><span style="color:#6A737D">    // id is typed as string</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">);</span></span></code></pre>
+<h3 id="generics-for-reusable-code">Generics for Reusable Code</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// Generic service for any model</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> BaseService</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#F97583">  constructor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">private</span><span style="color:#FFAB70"> model</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">) {}</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#F97583">  async</span><span style="color:#B392F0"> list</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">[]> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.model.</span><span style="color:#B392F0">findMany</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#F97583">  async</span><span style="color:#B392F0"> getById</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">T</span><span style="color:#F97583"> |</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.model.</span><span style="color:#B392F0">findUnique</span><span style="color:#E1E4E8">({ where: { id } });</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#F97583">  async</span><span style="color:#B392F0"> create</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">data</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Partial</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">>)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">T</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.model.</span><span style="color:#B392F0">create</span><span style="color:#E1E4E8">({ data });</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Usage</span></span>
+<span class="line"><span style="color:#F97583">interface</span><span style="color:#B392F0"> User</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#FFAB70">  id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#FFAB70">  name</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#FFAB70">  email</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> userService</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BaseService</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">User</span><span style="color:#E1E4E8">>(prisma.user);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> users</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> userService.</span><span style="color:#B392F0">list</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">// Type: User[]</span></span></code></pre>
+<h3 id="utility-types">Utility Types</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">interface</span><span style="color:#B392F0"> Product</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#FFAB70">  id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#FFAB70">  name</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#FFAB70">  price</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#FFAB70">  description</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#FFAB70">  stock</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Make all properties optional</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> PartialProduct</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Partial</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Product</span><span style="color:#E1E4E8">>;</span></span>
+<span class="line"><span style="color:#6A737D">// { id?: number; name?: string; ... }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Pick specific properties</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> ProductPreview</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Pick</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Product</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'id'</span><span style="color:#F97583"> |</span><span style="color:#9ECBFF"> 'name'</span><span style="color:#F97583"> |</span><span style="color:#9ECBFF"> 'price'</span><span style="color:#E1E4E8">>;</span></span>
+<span class="line"><span style="color:#6A737D">// { id: number; name: string; price: number; }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Exclude specific properties</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> ProductWithoutId</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Omit</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Product</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'id'</span><span style="color:#E1E4E8">>;</span></span>
+<span class="line"><span style="color:#6A737D">// { name: string; price: number; description: string; stock: number; }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Make all properties required</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> RequiredProduct</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Required</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Product</span><span style="color:#E1E4E8">>;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Make all properties readonly</span></span>
+<span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> ImmutableProduct</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Readonly</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Product</span><span style="color:#E1E4E8">>;</span></span></code></pre>
+<hr>
+<h2 id="monorepo-architecture">Monorepo Architecture</h2>
+<h3 id="what-is-a-monorepo">What is a Monorepo?</h3>
+<p><strong>Monorepo = One repository containing multiple packages/apps</strong></p>
+<p><strong>Structure:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>databridge/</span></span>
+<span class="line"><span>├── packages/</span></span>
+<span class="line"><span>│   ├── cli/          - Command-line tool</span></span>
+<span class="line"><span>│   ├── generator/    - Code generation logic</span></span>
+<span class="line"><span>│   └── angular-client/ - Angular utilities</span></span>
+<span class="line"><span>├── apps/</span></span>
+<span class="line"><span>│   ├── api/          - Example API server</span></span>
+<span class="line"><span>│   └── example-app/  - Example Angular app</span></span>
+<span class="line"><span>├── package.json      - Root package</span></span>
+<span class="line"><span>├── pnpm-workspace.yaml</span></span>
+<span class="line"><span>└── tsconfig.base.json</span></span></code></pre>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li><strong>Shared code:</strong> Use <code>packages/generator</code> in both <code>cli</code> and <code>api</code></li>
+<li><strong>Consistent versions:</strong> One place to update dependencies</li>
+<li><strong>Atomic changes:</strong> Change API + CLI in single commit</li>
+<li><strong>Easier testing:</strong> Test interactions between packages</li>
+</ul>
+<h3 id="nx-workspace">Nx Workspace</h3>
+<p><strong>Nx is a monorepo build system with caching and orchestration.</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># Create Nx workspace</span></span>
+<span class="line"><span style="color:#B392F0">npx</span><span style="color:#9ECBFF"> create-nx-workspace@latest</span><span style="color:#9ECBFF"> databridge</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Add packages</span></span>
+<span class="line"><span style="color:#B392F0">nx</span><span style="color:#9ECBFF"> generate</span><span style="color:#9ECBFF"> @nx/js:library</span><span style="color:#9ECBFF"> cli</span></span>
+<span class="line"><span style="color:#B392F0">nx</span><span style="color:#9ECBFF"> generate</span><span style="color:#9ECBFF"> @nx/js:library</span><span style="color:#9ECBFF"> generator</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Add apps</span></span>
+<span class="line"><span style="color:#B392F0">nx</span><span style="color:#9ECBFF"> generate</span><span style="color:#9ECBFF"> @nx/node:application</span><span style="color:#9ECBFF"> api</span></span>
+<span class="line"><span style="color:#B392F0">nx</span><span style="color:#9ECBFF"> generate</span><span style="color:#9ECBFF"> @nx/angular:application</span><span style="color:#9ECBFF"> example-app</span></span></code></pre>
+<p><strong>Build with caching:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># Build CLI (caches result)</span></span>
+<span class="line"><span style="color:#B392F0">nx</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> cli</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Build again (instant from cache)</span></span>
+<span class="line"><span style="color:#B392F0">nx</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> cli</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Build all packages</span></span>
+<span class="line"><span style="color:#B392F0">nx</span><span style="color:#9ECBFF"> run-many</span><span style="color:#79B8FF"> --target=build</span><span style="color:#79B8FF"> --all</span></span></code></pre>
+<h3 id="workspace-configuration">Workspace Configuration</h3>
+<p><strong>pnpm-workspace.yaml:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">packages</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#9ECBFF">'packages/*'</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#9ECBFF">'apps/*'</span></span></code></pre>
+<p><strong>tsconfig.base.json (path aliases):</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="json"><code><span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#79B8FF">  "compilerOptions"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">    "paths"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">      "@databridge/cli"</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"packages/cli/src/index.ts"</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#79B8FF">      "@databridge/generator"</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"packages/generator/src/index.ts"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>Usage in code:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// Instead of: import { generate } from '../../packages/generator/src';</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { generate } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@databridge/generator'</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<hr>
+<h2 id="summary">Summary</h2>
+<h3 id="key-technologies">Key Technologies</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Technology</th><th>Purpose</th><th>Why</th></tr></thead><tbody><tr><td>oclif</td><td>CLI framework</td><td>Professional, feature-rich</td></tr><tr><td>inquirer</td><td>User prompts</td><td>Interactive UX</td></tr><tr><td>Prisma</td><td>ORM + introspection</td><td>Best-in-class MySQL tooling</td></tr><tr><td>ts-morph</td><td>Code generation</td><td>AST manipulation for TypeScript</td></tr><tr><td>Fastify</td><td>Web server</td><td>Fast, modern, TypeScript-friendly</td></tr><tr><td>Nx</td><td>Monorepo</td><td>Build caching, orchestration</td></tr></tbody></table>
+<h3 id="design-patterns">Design Patterns</h3>
+<ul>
+<li><strong>Command Pattern:</strong> Each CLI command is self-contained</li>
+<li><strong>Plugin Pattern:</strong> Fastify plugins for modularity</li>
+<li><strong>Factory Pattern:</strong> Generate code from templates</li>
+<li><strong>Repository Pattern:</strong> Prisma models abstract database</li>
+<li><strong>Decorator Pattern:</strong> Angular services use <code>@Injectable</code></li>
+</ul>
+<h3 id="next-dive-deeper">Next: Dive Deeper</h3>
+<ul>
+<li><a href="./cli-development-part-1.md">Tutorial Part 1</a> - Build init and introspect</li>
+<li><a href="./cli-development-part-2.md">Tutorial Part 2</a> - Build generate and serve</li>
+<li><a href="./cli-development-part-3.md">Tutorial Part 3</a> - Testing and deployment</li>
+</ul> <nav class="mt-12 pt-8 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-4"><a href="/databridge-docs/docs/development/validation-guide" class="group flex flex-col gap-2 p-4 rounded-lg border border-border hover:border-primary transition-colors"><span class="text-sm text-muted-foreground">Previous</span><span class="font-medium group-hover:text-primary transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>Validation with Zod</span></a><a href="/databridge-docs/docs/development/testing-guide" class="group flex flex-col gap-2 p-4 rounded-lg border border-border hover:border-primary transition-colors text-right sm:ml-auto"><span class="text-sm text-muted-foreground">Next</span><span class="font-medium group-hover:text-primary transition-colors flex items-center gap-2 justify-end">Testing Your API<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span></a></nav>  <script type="module">function r(){document.querySelectorAll("pre").forEach(t=>{if(t.querySelector(".copy-button"))return;const o=document.createElement("div");o.className="code-block-wrapper",t.parentNode?.insertBefore(o,t),o.appendChild(t);const e=document.createElement("button");e.className="copy-button",e.setAttribute("aria-label","Copy code"),e.innerHTML=`
+        <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <svg class="check-icon hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      `,e.addEventListener("click",async()=>{const n=t.querySelector("code");if(!n)return;const i=n.textContent||"";try{await navigator.clipboard.writeText(i);const c=e.querySelector(".copy-icon"),s=e.querySelector(".check-icon");c?.classList.add("hidden"),s?.classList.remove("hidden"),e.classList.add("copied"),setTimeout(()=>{c?.classList.remove("hidden"),s?.classList.add("hidden"),e.classList.remove("copied")},2e3)}catch(c){console.error("Failed to copy:",c)}}),o.appendChild(e)})}r();document.addEventListener("astro:page-load",r);</script>  <div class="mt-12 pt-8 border-t border-border"><div class="flex flex-col items-center gap-4 p-6 bg-muted/30 rounded-lg"><h3 class="text-lg font-semibold text-foreground">Was this page helpful?</h3><div class="flex gap-3" id="feedback-buttons"><button data-feedback="yes" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium flex items-center gap-2"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+Yes
+</button><button data-feedback="no" class="px-6 py-2.5 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors font-medium flex items-center gap-2"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path></svg>
+No
+</button></div><div id="feedback-message" class="hidden text-center"><p class="text-sm text-muted-foreground">Thank you for your feedback!</p></div><div id="feedback-form" class="hidden w-full max-w-md"><textarea id="feedback-text" placeholder="Tell us more (optional)..." class="w-full px-4 py-3 border border-border rounded-md bg-background text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary" rows="3"></textarea><div class="flex gap-2 mt-3"><button id="submit-feedback" class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium">
+Submit
+</button><button id="skip-feedback" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors text-sm font-medium">
+Skip
+</button></div></div></div></div><script type="module">function l(){const t=document.getElementById("feedback-buttons"),s=document.getElementById("feedback-message"),n=document.getElementById("feedback-form"),m=document.querySelector('[data-feedback="yes"]'),r=document.querySelector('[data-feedback="no"]'),u=document.getElementById("submit-feedback"),f=document.getElementById("skip-feedback"),k=document.getElementById("feedback-text");if(!t||!s||!n)return;let c="";function d(){t?.classList.add("hidden"),n?.classList.add("hidden"),s?.classList.remove("hidden")}function b(e){c=e,t?.classList.add("hidden"),n?.classList.remove("hidden")}m?.addEventListener("click",()=>{a("yes",""),d()}),r?.addEventListener("click",()=>{b("no")}),u?.addEventListener("click",()=>{const e=k?.value||"";a(c,e),d()}),f?.addEventListener("click",()=>{a(c,""),d()});function a(e,g){const o={helpful:e,comment:g,page:window.location.pathname,timestamp:new Date().toISOString()};console.log("Feedback:",o);const i=JSON.parse(localStorage.getItem("clarity-feedback")||"[]");i.push(o),localStorage.setItem("clarity-feedback",JSON.stringify(i))}}l();document.addEventListener("astro:page-load",l);</script>  <div class="mt-8 pt-8 border-t border-border"><a href="https://github.com/alex-migwi/clarity/edit/main/src/content/docs/getting-started/core-concepts.md" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>Edit this page on GitHub</a></div> </article> <aside class="hidden xl:block w-64 flex-shrink-0"> <div class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto"> <h2 class="font-semibold mb-4 text-sm">
+On this page
+</h2> <nav class="text-sm" id="table-of-contents"> <ul class="space-y-2.5"> <li class="pl-0 relative"> <a href="#core-concepts" data-toc-link data-target="core-concepts" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Core Concepts </a> </li><li class="pl-3 relative"> <a href="#table-of-contents" data-toc-link data-target="table-of-contents" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Table of Contents </a> </li><li class="pl-3 relative"> <a href="#cli-frameworks" data-toc-link data-target="cli-frameworks" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> CLI Frameworks </a> </li><li class="pl-6 relative"> <a href="#what-is-a-cli" data-toc-link data-target="what-is-a-cli" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> What is a CLI? </a> </li><li class="pl-6 relative"> <a href="#anatomy-of-a-cli-command" data-toc-link data-target="anatomy-of-a-cli-command" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Anatomy of a CLI Command </a> </li><li class="pl-6 relative"> <a href="#why-oclif" data-toc-link data-target="why-oclif" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Why oclif? </a> </li><li class="pl-6 relative"> <a href="#oclif-command-structure" data-toc-link data-target="oclif-command-structure" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> oclif Command Structure </a> </li><li class="pl-6 relative"> <a href="#databridge-commands" data-toc-link data-target="databridge-commands" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> DataBridge Commands </a> </li><li class="pl-6 relative"> <a href="#interactive-prompts-with-inquirer" data-toc-link data-target="interactive-prompts-with-inquirer" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Interactive Prompts with inquirer </a> </li><li class="pl-3 relative"> <a href="#database-introspection" data-toc-link data-target="database-introspection" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Database Introspection </a> </li><li class="pl-6 relative"> <a href="#what-is-introspection" data-toc-link data-target="what-is-introspection" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> What is Introspection? </a> </li><li class="pl-6 relative"> <a href="#how-prisma-introspection-works" data-toc-link data-target="how-prisma-introspection-works" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> How Prisma Introspection Works </a> </li><li class="pl-6 relative"> <a href="#prisma-schema-format" data-toc-link data-target="prisma-schema-format" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Prisma Schema Format </a> </li><li class="pl-6 relative"> <a href="#running-introspection" data-toc-link data-target="running-introspection" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Running Introspection </a> </li><li class="pl-6 relative"> <a href="#type-mappings" data-toc-link data-target="type-mappings" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Type Mappings </a> </li><li class="pl-3 relative"> <a href="#code-generation" data-toc-link data-target="code-generation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Code Generation </a> </li><li class="pl-6 relative"> <a href="#what-is-code-generation" data-toc-link data-target="what-is-code-generation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> What is Code Generation? </a> </li><li class="pl-6 relative"> <a href="#ast-abstract-syntax-tree" data-toc-link data-target="ast-abstract-syntax-tree" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> AST (Abstract Syntax Tree) </a> </li><li class="pl-6 relative"> <a href="#ts-morph-typescript-manipulation" data-toc-link data-target="ts-morph-typescript-manipulation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> ts-morph (TypeScript Manipulation) </a> </li><li class="pl-6 relative"> <a href="#template-based-generation" data-toc-link data-target="template-based-generation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Template-Based Generation </a> </li><li class="pl-6 relative"> <a href="#dmmf-data-model-meta-format" data-toc-link data-target="dmmf-data-model-meta-format" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> DMMF (Data Model Meta Format) </a> </li><li class="pl-3 relative"> <a href="#web-frameworks" data-toc-link data-target="web-frameworks" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Web Frameworks </a> </li><li class="pl-6 relative"> <a href="#rest-api-basics" data-toc-link data-target="rest-api-basics" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> REST API Basics </a> </li><li class="pl-6 relative"> <a href="#fastify-framework" data-toc-link data-target="fastify-framework" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Fastify Framework </a> </li><li class="pl-6 relative"> <a href="#fastify-plugins" data-toc-link data-target="fastify-plugins" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Fastify Plugins </a> </li><li class="pl-6 relative"> <a href="#cors-cross-origin-resource-sharing" data-toc-link data-target="cors-cross-origin-resource-sharing" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> CORS (Cross-Origin Resource Sharing) </a> </li><li class="pl-3 relative"> <a href="#typescript-patterns" data-toc-link data-target="typescript-patterns" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> TypeScript Patterns </a> </li><li class="pl-6 relative"> <a href="#type-safe-api-routes" data-toc-link data-target="type-safe-api-routes" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Type-Safe API Routes </a> </li><li class="pl-6 relative"> <a href="#generics-for-reusable-code" data-toc-link data-target="generics-for-reusable-code" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Generics for Reusable Code </a> </li><li class="pl-6 relative"> <a href="#utility-types" data-toc-link data-target="utility-types" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Utility Types </a> </li><li class="pl-3 relative"> <a href="#monorepo-architecture" data-toc-link data-target="monorepo-architecture" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Monorepo Architecture </a> </li><li class="pl-6 relative"> <a href="#what-is-a-monorepo" data-toc-link data-target="what-is-a-monorepo" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> What is a Monorepo? </a> </li><li class="pl-6 relative"> <a href="#nx-workspace" data-toc-link data-target="nx-workspace" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Nx Workspace </a> </li><li class="pl-6 relative"> <a href="#workspace-configuration" data-toc-link data-target="workspace-configuration" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Workspace Configuration </a> </li><li class="pl-3 relative"> <a href="#summary" data-toc-link data-target="summary" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Summary </a> </li><li class="pl-6 relative"> <a href="#key-technologies" data-toc-link data-target="key-technologies" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Key Technologies </a> </li><li class="pl-6 relative"> <a href="#design-patterns" data-toc-link data-target="design-patterns" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Design Patterns </a> </li><li class="pl-6 relative"> <a href="#next-dive-deeper" data-toc-link data-target="next-dive-deeper" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Next: Dive Deeper </a> </li> </ul> </nav> <script type="module">function a(){const r=document.querySelectorAll("[data-toc-link]"),o=Array.from(document.querySelectorAll("h1, h2, h3, h4, h5, h6")).filter(t=>t.id);if(r.length===0||o.length===0)return;const s=new IntersectionObserver(t=>{t.forEach(n=>{const d=n.target.getAttribute("id"),e=document.querySelector(`[data-target="${d}"]`);n.isIntersecting&&(r.forEach(i=>{i.classList.remove("text-primary","border-primary","font-medium"),i.classList.add("text-muted-foreground","border-transparent")}),e&&(e.classList.remove("text-muted-foreground","border-transparent"),e.classList.add("text-primary","border-primary","font-medium")))})},{rootMargin:"-100px 0px -66%",threshold:0});o.forEach(t=>s.observe(t))}a();document.addEventListener("astro:page-load",a);</script> </div> </aside> </div> <footer class="mt-20 border-t border-border py-8 text-sm text-muted-foreground"> <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> <div class="flex flex-col md:flex-row justify-between items-center gap-4"> <p>© 2025 DataBridge Docs. All rights reserved.</p> <nav class="flex flex-wrap gap-6 justify-center"> <a href="https://alex-migwi.github.io/databridge-docs" class="hover:text-foreground transition-colors"> Documentation </a><a href="https://github.com/alex-migwi/databridge" class="hover:text-foreground transition-colors"> GitHub </a><a href="/privacy" class="hover:text-foreground transition-colors"> Privacy Policy </a><a href="/terms" class="hover:text-foreground transition-colors"> Terms of Service </a> </nav> </div> </div> </footer> </main> </div> <script type="module">const e=document.getElementById("sidebar"),t=document.getElementById("sidebar-backdrop"),d=document.getElementById("sidebar-toggle");function s(){if(!e||!t)return;!e.classList.contains("-translate-x-full")?(e.classList.add("-translate-x-full"),t.classList.add("hidden"),document.body.style.overflow=""):(e.classList.remove("-translate-x-full"),t.classList.remove("hidden"),document.body.style.overflow="hidden")}d?.addEventListener("click",s);t?.addEventListener("click",s);</script> <script type="module" src="/databridge-docs/_astro/Mermaid.astro_astro_type_script_index_0_lang.D9YJg_q9.js"></script> </body></html>

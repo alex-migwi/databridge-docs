@@ -1,82 +1,82 @@
 [
   {
-    "slug": "databridge/advanced/cli-development-part-1",
-    "title": "databridge/advanced/cli-development-part-1",
+    "slug": "advanced/cli-development-part-1",
+    "title": "advanced/cli-development-part-1",
     "content": "# Building DataBridge CLI - Complete Tutorial\n\nThis tutorial walks through building DataBridge's CLI from scratch, explaining every concept along the way.\n\n## Prerequisites\n\n- Node.js 20+\n- TypeScript knowledge (beginner-friendly)\n- Basic understanding of databases\n- Familiarity with command-line tools\n\n---\n\n## Table of Contents\n\n1. [Understanding the Architecture](#understanding-the-architecture)\n2. [Setting Up the CLI Framework](#setting-up-the-cli-framework)\n3. [Command 1: Init](#command-1-in"
   },
   {
-    "slug": "databridge/advanced/cli-development-part-2",
-    "title": "databridge/advanced/cli-development-part-2",
+    "slug": "advanced/cli-development-part-2",
+    "title": "advanced/cli-development-part-2",
     "content": "# DataBridge CLI Tutorial - Part 2: Code Generation & Server\n\n_Continued from [Part 1: Setup, Init, and Introspect](./cli-development-part-1.md)_\n\n---\n\n## Command 3: Generate\n\n### Purpose\n\nThis is the **heart of DataBridge** - it generates:\n- **API Routes:** Fastify endpoints with CRUD operations\n- **Angular Services:** TypeScript services with HttpClient\n- **Type Definitions:** Shared TypeScript interfaces\n\n### Key Concepts\n\n#### 1. Prisma DMMF (Data Model Meta Format)\n\n**DMMF is like a JSON bl"
   },
   {
-    "slug": "databridge/advanced/cli-development-part-3",
-    "title": "databridge/advanced/cli-development-part-3",
+    "slug": "advanced/cli-development-part-3",
+    "title": "advanced/cli-development-part-3",
     "content": "# DataBridge CLI Tutorial - Part 3: Testing and Deployment\n\n_Continued from [Part 2: Generate and Serve Commands](./cli-development-part-2.md)_\n\n---\n\n## End-to-End Testing\n\n### Prerequisites\n\nBefore testing, you need:\n- MySQL database running\n- Tables created in database\n- DataBridge CLI built and ready\n\n### Setting Up MySQL with Docker\n\n**Quick start with Docker Compose:**\n\n```yaml\n# docker/docker-compose.yml\nversion: '3.8'\n\nservices:\n  mysql:\n    image: mysql:8.0\n    container_name: databridge"
   },
   {
-    "slug": "databridge/advanced/docusaurus-setup",
+    "slug": "advanced/docusaurus-setup",
     "title": "DataBridge",
     "content": "# DataBridge CLI - Docusaurus Setup Guide\n\nThis guide shows how to create a documentation site using Docusaurus with the tutorial content we've generated.\n\n---\n\n## Quick Setup\n\n### 1. Install Docusaurus\n\n```bash\n# In your databridge project root\ncd docs\n\n# Create Docusaurus site\nnpx create-docusaurus@latest website classic --typescript\n\n# Navigate to the website\ncd website\n```\n\n### 2. Project Structure\n\n```\ndocs/\n├── website/                    # Docusaurus site\n│   ├── docs/                   #"
   },
   {
-    "slug": "databridge/changelog",
-    "title": "databridge/changelog",
+    "slug": "changelog",
+    "title": "changelog",
     "content": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n## [Unreleased]\n\n## [0.1.0] - 2024-12-04\n\n### Added\n\n- **CLI Commands**\n  - `databridge init` - Initialize new DataBridge project with interactive prompts\n  - `databridge introspect` - Introspect database and generate Prisma schema\n  - `databridge"
   },
   {
-    "slug": "databridge/deployment/production-deployment",
-    "title": "databridge/deployment/production-deployment",
+    "slug": "deployment/production-deployment",
+    "title": "deployment/production-deployment",
     "content": "# Production Deployment\n\nComplete guide to deploying your DataBridge API to production environments.\n\n## Overview\n\nThis guide covers deployment to popular platforms:\n- Railway\n- Vercel\n- AWS (EC2, ECS)\n- DigitalOcean\n- Heroku alternatives\n\n---\n\n## Pre-Deployment Checklist\n\n### Environment Variables\n\nCreate `.env.production`:\n\n```bash\nDATABASE_URL=\"mysql://user:pass@production-db:3306/mydb?ssl=true\"\nNODE_ENV=production\nAPI_PORT=8080\nCORS_ORIGIN=\"https://yourdomain.com\"\nJWT_SECRET=\"your-production"
   },
   {
-    "slug": "databridge/development/testing-guide",
-    "title": "databridge/development/testing-guide",
+    "slug": "development/testing-guide",
+    "title": "development/testing-guide",
     "content": "# Testing Your API\n\nLearn how to effectively test your DataBridge-generated API.\n\n## Overview\n\nDataBridge automatically generates test scripts, but you should also write custom tests for:\n- Business logic\n- Edge cases\n- Integration scenarios\n- Performance\n\n---\n\n## Auto-Generated Tests\n\nWhen you run `databridge generate`, you get `test-api.sh` with tests for:\n- Health checks\n- CRUD operations\n- Validation rules\n- Error handling\n\n### Running Generated Tests\n\n```bash\n# Start your API\nnpm run dev\n\n#"
   },
   {
-    "slug": "databridge/development/understanding-generated-code",
-    "title": "databridge/development/understanding-generated-code",
+    "slug": "development/understanding-generated-code",
+    "title": "development/understanding-generated-code",
     "content": "# Understanding Generated Code\n\nLearn what DataBridge creates when you run `databridge generate` and how each piece fits together.\n\n## Overview\n\nWhen you run `databridge generate`, DataBridge analyzes your Prisma schema and generates:\n- ✅ Fastify API routes with full CRUD operations\n- ✅ Zod validation schemas\n- ✅ Prisma plugin for database access\n- ✅ Server configuration with auto-port selection\n- ✅ Test scripts for validation\n- ✅ TypeScript type definitions\n\n---\n\n## File Structure\n\nAfter runnin"
   },
   {
-    "slug": "databridge/development/validation-guide",
-    "title": "databridge/development/validation-guide",
+    "slug": "development/validation-guide",
+    "title": "development/validation-guide",
     "content": "# Validation with Zod\n\nLearn how to customize and extend validation rules for your DataBridge API.\n\n## Overview\n\nDataBridge uses [Zod](https://zod.dev/) for runtime type validation. This guide covers:\n- Understanding auto-generated schemas\n- Adding custom validation rules\n- Handling validation errors\n- Best practices and patterns\n\n---\n\n## Auto-Generated Schemas\n\nWhen you run `databridge generate`, Zod schemas are created based on your Prisma types.\n\n### Prisma to Zod Mapping\n\n| Prisma Type | Zod"
   },
   {
-    "slug": "databridge/getting-started/core-concepts",
-    "title": "databridge/getting-started/core-concepts",
+    "slug": "getting-started/core-concepts",
+    "title": "getting-started/core-concepts",
     "content": "# Core Concepts\n\nUnderstanding the key technologies and patterns used in DataBridge.\n\n---\n\n## Table of Contents\n\n1. [CLI Frameworks](#cli-frameworks)\n2. [Database Introspection](#database-introspection)\n3. [Code Generation](#code-generation)\n4. [Web Frameworks](#web-frameworks)\n5. [TypeScript Patterns](#typescript-patterns)\n6. [Monorepo Architecture](#monorepo-architecture)\n\n---\n\n## CLI Frameworks\n\n### What is a CLI?\n\n**CLI (Command-Line Interface)** is a text-based program that runs in a termin"
   },
   {
-    "slug": "databridge/getting-started/database-setup",
-    "title": "databridge/getting-started/database-setup",
+    "slug": "getting-started/database-setup",
+    "title": "getting-started/database-setup",
     "content": "# Database Connection Setup\n\nLearn how to properly configure your MySQL database connection for DataBridge.\n\n## Overview\n\nDataBridge needs a MySQL database connection to introspect your schema and generate APIs. This guide covers:\n- MySQL connection string formats\n- Environment variable configuration\n- Local MySQL setup with Docker\n- Remote database connections\n- Troubleshooting connection issues\n\n---\n\n## Connection String Format\n\nMySQL connection strings follow this format:\n\n```\nmysql://[user]:"
   },
   {
-    "slug": "databridge/getting-started/getting-started-guide",
-    "title": "databridge/getting-started/getting-started-guide",
+    "slug": "getting-started/getting-started-guide",
+    "title": "getting-started/getting-started-guide",
     "content": "# Getting Started with DataBridge\n\n**Last Updated**: December 2, 2025  \n**Version**: 0.1.0  \n**Status**: Living Document - Updated Regularly\n\n> **What is DataBridge?** A powerful CLI tool that automatically generates production-ready APIs and frontend SDKs from your existing MySQL database. Features built-in Zod validation, comprehensive error handling, production logging, and automated testing. No boilerplate, no repetitive coding - just point it at your database and start building.\n\n## 📋 Prer"
   },
   {
-    "slug": "databridge/getting-started/quick-start",
-    "title": "databridge/getting-started/quick-start",
+    "slug": "getting-started/quick-start",
+    "title": "getting-started/quick-start",
     "content": "# Quick Start Guide\n\nGet DataBridge running in 5 minutes!\n\n---\n\n## Prerequisites\n\n- Node.js 20 or higher\n- MySQL database (local or remote)\n- Basic terminal knowledge\n\n---\n\n## Installation\n\nChoose the platform-specific package for your OS:\n\n```bash\n# Windows\nnpm install -g https://github.com/alex-migwi/databridge/releases/download/v0.1.0/databridge-cli-win32-v0.1.0.tgz\n\n# macOS\nnpm install -g https://github.com/alex-migwi/databridge/releases/download/v0.1.0/databridge-cli-darwin-v0.1.0.tgz\n\n# Li"
   },
   {
-    "slug": "databridge/index",
-    "title": "databridge/index",
+    "slug": "index",
+    "title": "index",
     "content": "# DataBridge\n\n> **The open-source, self-hosted developer toolkit for MySQL + Angular teams**\n> \n> Auto-generate type-safe APIs, Angular SDKs, and AI-native MCP servers from your MySQL database — like Firebase DataConnect, but for SQL with AI superpowers.\n\n**DataBridge** bridges your MySQL database and Angular frontend with automatically generated, type-safe code. Skip the boilerplate, stay in sync, keep control. Now with MCP server generation for AI-powered database access.\n\n## 🎯 What Problem D"
   },
   {
-    "slug": "databridge/introduction",
-    "title": "databridge/introduction",
+    "slug": "introduction",
+    "title": "introduction",
     "content": "# DataBridge\n\n> **The open-source, self-hosted developer toolkit for MySQL + Angular teams**\n> \n> Auto-generate type-safe APIs, Angular SDKs, and AI-native MCP servers from your MySQL database — like Firebase DataConnect, but for SQL with AI superpowers.\n\n**DataBridge** bridges your MySQL database and Angular frontend with automatically generated, type-safe code. Skip the boilerplate, stay in sync, keep control.\n\n## 🎯 What Problem Does It Solve?\n\n**The Pain:**\n- Writing CRUD APIs manually is re"
   },
   {
-    "slug": "databridge/releases",
-    "title": "databridge/releases",
+    "slug": "releases",
+    "title": "releases",
     "content": "# Release Notes\n\nUser-friendly summaries of each release.\n\n---\n\n## 🎉 v0.1.0 - Initial Release (December 4, 2024)\n\nWelcome to the first release of **DataBridge CLI**! This release brings you a complete, zero-install CLI tool for rapidly building type-safe REST APIs from your database schema.\n\n### 🚀 What's New\n\n**Complete CLI Workflow**\n- Create new projects with `databridge init`\n- Introspect your database with `databridge introspect`\n- Generate complete API with `databridge generate`\n- Start d"
   }
 ]

@@ -1,21 +1,17 @@
 <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-  <!-- Simplified bridge favicon -->
+  <!-- Left pillar (red) -->
+  <rect x="8" y="10" width="4" height="16" fill="#DC2626" rx="0.5"/>
   
-  <!-- Bridge deck -->
-  <rect x="4" y="15" width="24" height="2" fill="#2563EB" rx="1"/>
+  <!-- Horizontal span (dark) -->
+  <rect x="12" y="16" width="13" height="4" fill="#1F2937" rx="0.5"/>
   
-  <!-- Main arch -->
-  <path d="M 6 17 Q 16 8, 26 17" 
-        fill="none" 
-        stroke="#2563EB" 
-        stroke-width="2.5" 
-        stroke-linecap="round"/>
+  <!-- Right pillar (dark) -->
+  <rect x="25" y="16" width="4" height="10" fill="#1F2937" rx="0.5"/>
   
-  <!-- Support pillars -->
-  <rect x="8" y="17" width="2" height="8" fill="#1E40AF" rx="0.5"/>
-  <rect x="22" y="17" width="2" height="8" fill="#1E40AF" rx="0.5"/>
+  <!-- Connection detail -->
+  <rect x="11" y="15" width="2" height="6" fill="#1F2937" rx="0.5"/>
   
-  <!-- Foundations -->
-  <rect x="6" y="25" width="6" height="2" fill="#1E40AF" rx="0.5"/>
-  <rect x="20" y="25" width="6" height="2" fill="#1E40AF" rx="0.5"/>
+  <!-- Bottom foundations -->
+  <rect x="6" y="26" width="8" height="2" fill="#374151" rx="0.5"/>
+  <rect x="23" y="26" width="8" height="2" fill="#374151" rx="0.5"/>
 </svg>

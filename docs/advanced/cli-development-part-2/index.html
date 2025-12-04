@@ -1,0 +1,903 @@
+<!DOCTYPE html><html lang="en" class="scroll-smooth"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta name="description" content="Build DataBridge from scratch - Part 2 covers the generate command, code generation with ts-morph, and server implementation"><meta name="author" content="DataBridge Docs"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://alex-migwi.github.io/databridge-docs/docs/advanced/cli-development-part-2/"><meta property="og:title" content="CLI Development - Part 2 - DataBridge Docs"><meta property="og:description" content="Build DataBridge from scratch - Part 2 covers the generate command, code generation with ts-morph, and server implementation"><meta property="og:site_name" content="DataBridge Docs"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://alex-migwi.github.io/databridge-docs/docs/advanced/cli-development-part-2/"><meta name="twitter:title" content="CLI Development - Part 2 - DataBridge Docs"><meta name="twitter:description" content="Build DataBridge from scratch - Part 2 covers the generate command, code generation with ts-morph, and server implementation"><!-- Canonical URL --><link rel="canonical" href="https://alex-migwi.github.io/databridge-docs/docs/advanced/cli-development-part-2/"><title>CLI Development - Part 2 - DataBridge Docs</title><script>
+            // Theme initialization - must run before page renders
+            (function() {
+                const getThemePreference = () => {
+                    if (
+                        typeof localStorage !== "undefined" &&
+                        localStorage.getItem("theme")
+                    ) {
+                        return localStorage.getItem("theme");
+                    }
+                    return window.matchMedia("(prefers-color-scheme: dark)").matches
+                        ? "dark"
+                        : "light";
+                };
+                const theme = getThemePreference();
+                if (theme === "dark") {
+                    document.documentElement.classList.add("dark");
+                } else {
+                    document.documentElement.classList.remove("dark");
+                }
+            })();
+
+            if (typeof localStorage !== "undefined") {
+                const observer = new MutationObserver(() => {
+                    const isDark =
+                        document.documentElement.classList.contains("dark");
+                    localStorage.setItem("theme", isDark ? "dark" : "light");
+                });
+                observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ["class"],
+                });
+            }
+        </script><link rel="stylesheet" href="/databridge-docs/_astro/dashboard.yRg8Cl78.css">
+<style>.code-block-wrapper[data-astro-cid-a3hy7aej]{position:relative;margin:1.5rem 0}.copy-button[data-astro-cid-a3hy7aej]{position:absolute;top:.5rem;right:.5rem;padding:.5rem;border-radius:.375rem;background:hsl(var(--muted));border:1px solid hsl(var(--border));color:hsl(var(--muted-foreground));cursor:pointer;opacity:0;transition:opacity .2s,background .2s,color .2s;z-index:10}.code-block-wrapper[data-astro-cid-a3hy7aej]:hover .copy-button[data-astro-cid-a3hy7aej]{opacity:1}.copy-button[data-astro-cid-a3hy7aej]:hover{background:hsl(var(--accent));color:hsl(var(--accent-foreground))}.copy-button[data-astro-cid-a3hy7aej].copied{background:hsl(var(--primary));color:hsl(var(--primary-foreground))}.copy-button[data-astro-cid-a3hy7aej] svg[data-astro-cid-a3hy7aej]{width:16px;height:16px;display:block}.hidden[data-astro-cid-a3hy7aej]{display:none}
+</style></head> <body class="bg-background text-foreground min-h-screen flex flex-col"> <header class="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60"> <div class="flex h-16 items-center px-4 sm:px-6 lg:px-8"> <button id="sidebar-toggle" class="mr-4 md:hidden p-2 text-muted-foreground hover:text-foreground"> <span class="sr-only">Open sidebar</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path> </svg> </button> <div class="flex items-center gap-2 font-bold text-xl tracking-tight"> <a href="/databridge-docs/" class="flex items-center gap-3 hover:opacity-80 transition-opacity"> <img src="/databridge-docs/logo.svg" alt="DataBridge Docs" class="h-8 w-8"> <span class="text-foreground">DataBridge Docs</span> </a> </div> <div class="flex-1"></div> <div class="flex items-center gap-4"> <div class="hidden md:block w-64"> <div class="relative" data-astro-cid-otpdt6jm> <button id="search-trigger" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground bg-muted/50 rounded-md border border-border hover:border-primary transition-colors" data-astro-cid-otpdt6jm> <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-otpdt6jm> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" data-astro-cid-otpdt6jm></path> </svg> <span data-astro-cid-otpdt6jm>Search...</span> <kbd class="ml-auto px-2 py-0.5 text-xs bg-background border border-border rounded" data-astro-cid-otpdt6jm>⌘K</kbd> </button> </div> <!-- Search Modal - Portal to body level --> <teleport-search-modal data-astro-cid-otpdt6jm="true"> <div id="search-modal" class="hidden fixed inset-0 z-[9999] overflow-y-auto" style="z-index: 9999 !important;" data-astro-cid-otpdt6jm> <div class="flex min-h-screen items-start justify-center p-4 pt-20" data-astro-cid-otpdt6jm> <div class="fixed inset-0 bg-background/80 backdrop-blur-sm" id="search-backdrop" data-astro-cid-otpdt6jm></div> <div class="relative w-full max-w-2xl bg-background border border-border rounded-lg shadow-lg" data-astro-cid-otpdt6jm> <div class="flex items-center gap-3 px-4 py-3 border-b border-border" data-astro-cid-otpdt6jm> <svg class="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-otpdt6jm> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" data-astro-cid-otpdt6jm></path> </svg> <input id="search-input" type="text" placeholder="Search documentation..." class="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground" autocomplete="off" data-astro-cid-otpdt6jm> <button id="search-close" class="text-muted-foreground hover:text-foreground" data-astro-cid-otpdt6jm> <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-otpdt6jm> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" data-astro-cid-otpdt6jm></path> </svg> </button> </div> <div id="search-results" class="max-h-[60vh] overflow-y-auto p-2" data-astro-cid-otpdt6jm> <div class="px-4 py-8 text-center text-muted-foreground" data-astro-cid-otpdt6jm>
+Start typing to search...
+</div> </div> </div> </div> <script type="module">const u=document.querySelector("teleport-search-modal");if(u){const e=u.querySelector("#search-modal");e&&(document.body.appendChild(e),u.remove())}const c=document.getElementById("search-modal"),b=document.getElementById("search-trigger"),E=document.getElementById("search-close"),C=document.getElementById("search-backdrop"),h=document.getElementById("search-input"),s=document.getElementById("search-results");let x=[],o=-1;async function M(){try{x=await(await fetch("/databridge-docs/search-index.json")).json()}catch(e){console.error("Failed to load search index:",e)}}function I(e){if(!e.trim()){s.innerHTML='<div class="px-4 py-8 text-center text-muted-foreground">Start typing to search...</div>';return}const n=e.toLowerCase(),d=x.filter(t=>t.title&&t.title.toLowerCase().includes(n)||t.description&&t.description.toLowerCase().includes(n)||t.content&&t.content.toLowerCase().includes(n)).slice(0,10);if(d.length===0){s.innerHTML='<div class="px-4 py-8 text-center text-muted-foreground">No results found</div>';return}function g(t,r){if(!t||!r)return t||"";const a=r.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),i=new RegExp(`(${a})`,"gi");return t.replace(i,'<mark class="bg-primary/20 text-foreground rounded px-0.5">$1</mark>')}function L(t,r){if(!t)return"";const a=t.toLowerCase(),i=r.toLowerCase(),l=a.indexOf(i);if(l===-1)return t.substring(0,150)+"...";const p=Math.max(0,l-50),y=Math.min(t.length,l+r.length+100),k=(p>0?"...":"")+t.substring(p,y)+(y<t.length?"...":"");return g(k,r)}s.innerHTML=d.map((t,r)=>`
+      <a href="/docs/${t.slug}" 
+         class="block px-4 py-3 rounded-md hover:bg-muted/50 transition-colors search-result"
+         data-index="${r}">
+        <div class="font-medium text-foreground">${g(t.title||"Untitled",n)}</div>
+        <div class="text-sm text-muted-foreground line-clamp-2 mt-1">${L(t.description||t.content||"",n)}</div>
+      </a>
+    `).join(""),m()}function w(){c?.classList.remove("hidden"),h?.focus(),document.body.style.overflow="hidden",o=-1}function f(){c?.classList.add("hidden"),h.value="",s.innerHTML='<div class="px-4 py-8 text-center text-muted-foreground">Start typing to search...</div>',document.body.style.overflow="",o=-1}function m(){const e=document.querySelectorAll(".search-result");e.forEach(n=>n.classList.remove("bg-muted/50")),o>=0&&o<e.length&&(e[o].classList.add("bg-muted/50"),e[o].scrollIntoView({block:"nearest",behavior:"smooth"}))}function $(e){const n=document.querySelectorAll(".search-result");n.length!==0&&(e.key==="ArrowDown"?(e.preventDefault(),o=Math.min(o+1,n.length-1),m()):e.key==="ArrowUp"?(e.preventDefault(),o=Math.max(o-1,-1),m()):e.key==="Enter"&&o>=0&&(e.preventDefault(),n[o].click()))}b?.addEventListener("click",w);E?.addEventListener("click",f);C?.addEventListener("click",f);document.addEventListener("keydown",e=>{(e.metaKey||e.ctrlKey)&&e.key==="k"&&(e.preventDefault(),w()),e.key==="Escape"&&f(),c&&!c.classList.contains("hidden")&&$(e)});let v;h?.addEventListener("input",e=>{clearTimeout(v),v=setTimeout(()=>{I(e.target.value)},300)});M();</script> </div></teleport-search-modal> </div> <nav class="flex items-center gap-4">  <button id="theme-toggle" type="button" class="inline-flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" aria-label="Toggle theme"> <!-- Sun Icon (Shows in Dark Mode) --> <svg id="sun-icon" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path> </svg> <!-- Moon Icon (Shows in Light Mode) --> <svg id="moon-icon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path> </svg> </button> <script>
+    const updateIcons = () => {
+        const isDark = document.documentElement.classList.contains("dark");
+        const sunIcon = document.getElementById("sun-icon");
+        const moonIcon = document.getElementById("moon-icon");
+        
+        if (isDark) {
+            sunIcon?.classList.remove("hidden");
+            moonIcon?.classList.add("hidden");
+        } else {
+            sunIcon?.classList.add("hidden");
+            moonIcon?.classList.remove("hidden");
+        }
+    };
+    
+    const handleToggleClick = () => {
+        const element = document.documentElement;
+        element.classList.toggle("dark");
+
+        const isDark = element.classList.contains("dark");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        
+        updateIcons();
+    };
+
+    document
+        .getElementById("theme-toggle")
+        ?.addEventListener("click", handleToggleClick);
+    
+    // Initialize icons on page load
+    updateIcons();
+</script> </nav> </div> </div> </header> <div class="flex flex-1 pt-16"> <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 transform bg-background border-r border-border transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 md:sticky md:top-16 md:h-[calc(100vh-4rem)] md:overflow-y-auto pt-16 md:pt-0"> <nav class="h-full px-4 py-6 overflow-y-auto"> <ul class="space-y-1"> <li class="mt-1"> <a href="/databridge-docs/docs/index" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> DataBridge Documentation </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/introduction" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Introduction to DataBridge </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/changelog" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Changelog </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/releases" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Releases </a>  </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Advanced </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/databridge-docs/docs/advanced/cli-development-part-1" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> CLI Development - Part 1 </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/advanced/cli-development-part-2" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 bg-primary/10 text-primary font-medium"> CLI Development - Part 2 </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/advanced/cli-development-part-3" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> CLI Development - Part 3 </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/advanced/docusaurus-setup" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Docusaurus Setup </a>  </li> </ul> </div> </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Deployment </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/databridge-docs/docs/deployment/production-deployment" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Production Deployment </a>  </li> </ul> </div> </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Development </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/databridge-docs/docs/development/understanding-generated-code" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Understanding Generated Code </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/development/validation-guide" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Validation with Zod </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/development/testing-guide" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Testing Your API </a>  </li> </ul> </div> </li><li class="mt-1"> <span class="block py-2 px-3 text-sm font-semibold text-foreground mt-4 mb-2"> Getting Started </span> <div class="ml-3 border-l border-border pl-3"> <ul class="space-y-1"> <li class="mt-1"> <a href="/databridge-docs/docs/getting-started/database-setup" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Database Connection Setup </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/getting-started/quick-start" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Quick Start Guide </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/getting-started/getting-started-guide" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Getting Started Guide </a>  </li><li class="mt-1"> <a href="/databridge-docs/docs/getting-started/core-concepts" class="block py-2 px-3 text-sm rounded-md transition-colors duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"> Core Concepts </a>  </li> </ul> </div> </li> </ul> </nav> </aside> <div id="sidebar-backdrop" class="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden hidden" aria-hidden="true"></div> <main class="flex-1 min-w-0"> <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex gap-10"> <article class="flex-1 prose dark:prose-invert max-w-4xl prose-headings:scroll-mt-20 prose-a:text-primary hover:prose-a:text-primary/80"> <nav class="flex items-center gap-2 text-sm text-muted-foreground mb-6"> <a href="/databridge-docs/" class="hover:text-foreground transition-colors">Home</a>  <span class="mx-1">/</span> <a href="/databridge-docs/docs/advanced" class="hover:text-foreground transition-colors"> Advanced </a> <span class="mx-1">/</span> <span class="text-foreground font-medium">Cli Development Part 2</span> </nav> <div class="not-prose mb-10"> <h1 class="text-3xl font-semibold mb-4 text-foreground"> CLI Development - Part 2 </h1> <p class="text-lg text-muted-foreground leading-relaxed"> Build DataBridge from scratch - Part 2 covers the generate command, code generation with ts-morph, and server implementation </p> </div>  <h1 id="databridge-cli-tutorial---part-2-code-generation--server">DataBridge CLI Tutorial - Part 2: Code Generation &#x26; Server</h1>
+<p><em>Continued from <a href="./cli-development-part-1.md">Part 1: Setup, Init, and Introspect</a></em></p>
+<hr>
+<h2 id="command-3-generate">Command 3: Generate</h2>
+<h3 id="purpose">Purpose</h3>
+<p>This is the <strong>heart of DataBridge</strong> - it generates:</p>
+<ul>
+<li><strong>API Routes:</strong> Fastify endpoints with CRUD operations</li>
+<li><strong>Angular Services:</strong> TypeScript services with HttpClient</li>
+<li><strong>Type Definitions:</strong> Shared TypeScript interfaces</li>
+</ul>
+<h3 id="key-concepts">Key Concepts</h3>
+<h4 id="1-prisma-dmmf-data-model-meta-format">1. Prisma DMMF (Data Model Meta Format)</h4>
+<p><strong>DMMF is like a JSON blueprint of your database schema.</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { getDMMF } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@prisma/internals'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Read schema.prisma file</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> schemaContent</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">readFile</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'prisma/schema.prisma'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'utf-8'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Convert to JSON structure</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> dmmf</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#B392F0"> getDMMF</span><span style="color:#E1E4E8">({ datamodel: schemaContent });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// dmmf structure:</span></span>
+<span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#B392F0">  datamodel</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#B392F0">    models</span><span style="color:#E1E4E8">: [</span></span>
+<span class="line"><span style="color:#E1E4E8">      {</span></span>
+<span class="line"><span style="color:#E1E4E8">        name: </span><span style="color:#9ECBFF">"Product"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        fields: [</span></span>
+<span class="line"><span style="color:#E1E4E8">          { name: </span><span style="color:#9ECBFF">"id"</span><span style="color:#E1E4E8">, type: </span><span style="color:#9ECBFF">"Int"</span><span style="color:#E1E4E8">, isRequired: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">          { name: </span><span style="color:#9ECBFF">"name"</span><span style="color:#E1E4E8">, type: </span><span style="color:#9ECBFF">"String"</span><span style="color:#E1E4E8">, isRequired: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">          { name: </span><span style="color:#9ECBFF">"price"</span><span style="color:#E1E4E8">, type: </span><span style="color:#9ECBFF">"Float"</span><span style="color:#E1E4E8">, isRequired: </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8"> }</span></span>
+<span class="line"><span style="color:#E1E4E8">        ]</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    ]</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>Why use DMMF instead of regex?</strong></p>
+<ul>
+<li>Accurate: Understands Prisma syntax completely</li>
+<li>Structured: Clean JSON format</li>
+<li>Rich data: Includes relations, defaults, indexes</li>
+</ul>
+<h4 id="2-ts-morph-typescript-ast-manipulation">2. ts-morph (TypeScript AST Manipulation)</h4>
+<p><strong>AST = Abstract Syntax Tree</strong> (the code structure as a tree)</p>
+<p><strong>Think of it as programmatically writing code:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Project, VariableDeclarationKind, Scope } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'ts-morph'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Create a TypeScript project in memory</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> project</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Project</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Add a new file</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> sourceFile</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">createSourceFile</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'routes/products.ts'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">''</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">  overwrite: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Add import statement</span></span>
+<span class="line"><span style="color:#E1E4E8">sourceFile.</span><span style="color:#B392F0">addImportDeclaration</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  namedImports: [</span><span style="color:#9ECBFF">'FastifyInstance'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">  moduleSpecifier: </span><span style="color:#9ECBFF">'fastify'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Add function</span></span>
+<span class="line"><span style="color:#E1E4E8">sourceFile.</span><span style="color:#B392F0">addFunction</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  name: </span><span style="color:#9ECBFF">'registerRoutes'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  isAsync: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  parameters: [</span></span>
+<span class="line"><span style="color:#E1E4E8">    { name: </span><span style="color:#9ECBFF">'fastify'</span><span style="color:#E1E4E8">, type: </span><span style="color:#9ECBFF">'FastifyInstance'</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">  ],</span></span>
+<span class="line"><span style="color:#E1E4E8">  statements: </span><span style="color:#9ECBFF">`</span></span>
+<span class="line"><span style="color:#9ECBFF">    fastify.get('/products', async () => {</span></span>
+<span class="line"><span style="color:#9ECBFF">      return { message: 'List products' };</span></span>
+<span class="line"><span style="color:#9ECBFF">    });</span></span>
+<span class="line"><span style="color:#9ECBFF">  `</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Save to disk</span></span>
+<span class="line"><span style="color:#F97583">await</span><span style="color:#E1E4E8"> sourceFile.</span><span style="color:#B392F0">save</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<p><strong>Why ts-morph?</strong></p>
+<ul>
+<li>Generates valid TypeScript automatically</li>
+<li>Handles formatting, imports, syntax</li>
+<li>No string concatenation nightmares!</li>
+</ul>
+<h4 id="3-template-patterns">3. Template Patterns</h4>
+<p>We use templates for repetitive code structures:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#E1E4E8">private </span><span style="color:#B392F0">generateRouteStatements</span><span style="color:#E1E4E8">(modelName: string): string {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> lowerModel</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> modelName.</span><span style="color:#B392F0">toLowerCase</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#9ECBFF"> `</span></span>
+<span class="line"><span style="color:#9ECBFF">    // GET all ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#9ECBFF">    fastify.get('/${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}', async (request, reply) => {</span></span>
+<span class="line"><span style="color:#9ECBFF">      const items = await fastify.prisma.${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}.findMany();</span></span>
+<span class="line"><span style="color:#9ECBFF">      return items;</span></span>
+<span class="line"><span style="color:#9ECBFF">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">    // GET one ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">} by ID</span></span>
+<span class="line"><span style="color:#9ECBFF">    fastify.get('/${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}/:id', async (request, reply) => {</span></span>
+<span class="line"><span style="color:#9ECBFF">      const { id } = request.params as { id: string };</span></span>
+<span class="line"><span style="color:#9ECBFF">      const item = await fastify.prisma.${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}.findUnique({</span></span>
+<span class="line"><span style="color:#9ECBFF">        where: { id: parseInt(id) },</span></span>
+<span class="line"><span style="color:#9ECBFF">      });</span></span>
+<span class="line"><span style="color:#9ECBFF">      </span></span>
+<span class="line"><span style="color:#9ECBFF">      if (!item) {</span></span>
+<span class="line"><span style="color:#9ECBFF">        reply.code(404);</span></span>
+<span class="line"><span style="color:#9ECBFF">        return { error: 'Not found' };</span></span>
+<span class="line"><span style="color:#9ECBFF">      }</span></span>
+<span class="line"><span style="color:#9ECBFF">      </span></span>
+<span class="line"><span style="color:#9ECBFF">      return item;</span></span>
+<span class="line"><span style="color:#9ECBFF">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">    // POST create ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#9ECBFF">    fastify.post('/${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}', async (request, reply) => {</span></span>
+<span class="line"><span style="color:#9ECBFF">      const item = await fastify.prisma.${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}.create({</span></span>
+<span class="line"><span style="color:#9ECBFF">        data: request.body,</span></span>
+<span class="line"><span style="color:#9ECBFF">      });</span></span>
+<span class="line"><span style="color:#9ECBFF">      reply.code(201);</span></span>
+<span class="line"><span style="color:#9ECBFF">      return item;</span></span>
+<span class="line"><span style="color:#9ECBFF">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">    // PATCH update ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#9ECBFF">    fastify.patch('/${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}/:id', async (request, reply) => {</span></span>
+<span class="line"><span style="color:#9ECBFF">      const { id } = request.params as { id: string };</span></span>
+<span class="line"><span style="color:#9ECBFF">      const item = await fastify.prisma.${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}.update({</span></span>
+<span class="line"><span style="color:#9ECBFF">        where: { id: parseInt(id) },</span></span>
+<span class="line"><span style="color:#9ECBFF">        data: request.body,</span></span>
+<span class="line"><span style="color:#9ECBFF">      });</span></span>
+<span class="line"><span style="color:#9ECBFF">      return item;</span></span>
+<span class="line"><span style="color:#9ECBFF">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">    // DELETE ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#9ECBFF">    fastify.delete('/${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}/:id', async (request, reply) => {</span></span>
+<span class="line"><span style="color:#9ECBFF">      const { id } = request.params as { id: string };</span></span>
+<span class="line"><span style="color:#9ECBFF">      await fastify.prisma.${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}.delete({</span></span>
+<span class="line"><span style="color:#9ECBFF">        where: { id: parseInt(id) },</span></span>
+<span class="line"><span style="color:#9ECBFF">      });</span></span>
+<span class="line"><span style="color:#9ECBFF">      reply.code(204);</span></span>
+<span class="line"><span style="color:#9ECBFF">    });</span></span>
+<span class="line"><span style="color:#9ECBFF">  `</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="the-generation-flow">The Generation Flow</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>1. Read DMMF from schema.prisma</span></span>
+<span class="line"><span>   ↓</span></span>
+<span class="line"><span>2. For each model (User, Product, etc.):</span></span>
+<span class="line"><span>   a. Generate API route file (routes/user.ts)</span></span>
+<span class="line"><span>   b. Generate Angular service (services/user.service.ts)</span></span>
+<span class="line"><span>   c. Generate TypeScript interface (models/user.model.ts)</span></span>
+<span class="line"><span>   ↓</span></span>
+<span class="line"><span>3. Save all files to disk</span></span></code></pre>
+<h3 id="complete-implementation">Complete Implementation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// packages/cli/src/commands/generate.ts</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Command } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@oclif/core'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { getDMMF } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@prisma/internals'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#79B8FF"> *</span><span style="color:#F97583"> as</span><span style="color:#E1E4E8"> fs </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'fs-extra'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#79B8FF"> *</span><span style="color:#F97583"> as</span><span style="color:#E1E4E8"> path </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'path'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> chalk </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'chalk'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Project, VariableDeclarationKind, Scope } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'ts-morph'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> default</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Generate</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Command</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  static</span><span style="color:#FFAB70"> description</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> 'Generate API routes and Angular SDK from database schema'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  async</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#79B8FF">void</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.bold.</span><span style="color:#B392F0">blue</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">⚙️  Generating code from schema...</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">'</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> config</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">loadConfig</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> dmmf</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getPrismaDMMF</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">dmmf.datamodel.models.</span><span style="color:#79B8FF">length</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'No models found in schema. Run "databridge introspect" first.'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">generateApiRoutes</span><span style="color:#E1E4E8">(dmmf, config.api.outputPath);</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">generateAngularSdk</span><span style="color:#E1E4E8">(dmmf, config.angular.outputPath);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">green</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">✅ Code generation complete!'</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">bold</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`📦 Generated code for ${</span><span style="color:#E1E4E8">dmmf</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">datamodel</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">models</span><span style="color:#9ECBFF">.</span><span style="color:#79B8FF">length</span><span style="color:#9ECBFF">} models`</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> loadConfig</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> configPath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(process.</span><span style="color:#B392F0">cwd</span><span style="color:#E1E4E8">(), </span><span style="color:#9ECBFF">'.databridge.json'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">await</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">pathExists</span><span style="color:#E1E4E8">(configPath))) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'No .databridge.json found. Run "databridge init" first.'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">readJSON</span><span style="color:#E1E4E8">(configPath);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> getPrismaDMMF</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> schemaPath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(process.</span><span style="color:#B392F0">cwd</span><span style="color:#E1E4E8">(), </span><span style="color:#9ECBFF">'prisma'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'schema.prisma'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">await</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">pathExists</span><span style="color:#E1E4E8">(schemaPath))) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'No schema.prisma found. Run "databridge introspect" first.'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> schemaContent</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">readFile</span><span style="color:#E1E4E8">(schemaPath, </span><span style="color:#9ECBFF">'utf-8'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#B392F0"> getDMMF</span><span style="color:#E1E4E8">({ datamodel: schemaContent });</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> generateApiRoutes</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">dmmf</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">outputPath</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">cyan</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'Generating API routes...'</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> routesDir</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(process.</span><span style="color:#B392F0">cwd</span><span style="color:#E1E4E8">(), outputPath, </span><span style="color:#9ECBFF">'routes'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">ensureDir</span><span style="color:#E1E4E8">(routesDir);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> project</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Project</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> model</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> dmmf.datamodel.models) {</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> fileName</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> `${</span><span style="color:#E1E4E8">model</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">.</span><span style="color:#B392F0">toLowerCase</span><span style="color:#9ECBFF">()</span><span style="color:#9ECBFF">}.ts`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> filePath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(routesDir, fileName);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> sourceFile</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">createSourceFile</span><span style="color:#E1E4E8">(filePath, </span><span style="color:#9ECBFF">''</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">        overwrite: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">      // Add imports</span></span>
+<span class="line"><span style="color:#E1E4E8">      sourceFile.</span><span style="color:#B392F0">addImportDeclaration</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        namedImports: [</span><span style="color:#9ECBFF">'FastifyInstance'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">        moduleSpecifier: </span><span style="color:#9ECBFF">'fastify'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">      // Add route registration function</span></span>
+<span class="line"><span style="color:#E1E4E8">      sourceFile.</span><span style="color:#B392F0">addFunction</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        name: </span><span style="color:#9ECBFF">'registerRoutes'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        isAsync: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        isExported: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        isDefaultExport: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        parameters: [</span></span>
+<span class="line"><span style="color:#E1E4E8">          { name: </span><span style="color:#9ECBFF">'fastify'</span><span style="color:#E1E4E8">, type: </span><span style="color:#9ECBFF">'FastifyInstance'</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">        ],</span></span>
+<span class="line"><span style="color:#E1E4E8">        statements: </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">generateRouteStatements</span><span style="color:#E1E4E8">(model.name),</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      await</span><span style="color:#E1E4E8"> sourceFile.</span><span style="color:#B392F0">save</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">green</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`  ✓ ${</span><span style="color:#E1E4E8">fileName</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#B392F0"> generateRouteStatements</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">modelName</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> lowerModel</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> modelName.</span><span style="color:#B392F0">toLowerCase</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#9ECBFF"> `</span></span>
+<span class="line"><span style="color:#9ECBFF">      // List all ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#9ECBFF">      fastify.get('/${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}', async (request, reply) => {</span></span>
+<span class="line"><span style="color:#9ECBFF">        const items = await fastify.prisma.${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}.findMany();</span></span>
+<span class="line"><span style="color:#9ECBFF">        return items;</span></span>
+<span class="line"><span style="color:#9ECBFF">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">      // Get ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">} by ID</span></span>
+<span class="line"><span style="color:#9ECBFF">      fastify.get('/${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}/:id', async (request, reply) => {</span></span>
+<span class="line"><span style="color:#9ECBFF">        const { id } = request.params as { id: string };</span></span>
+<span class="line"><span style="color:#9ECBFF">        const item = await fastify.prisma.${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}.findUnique({</span></span>
+<span class="line"><span style="color:#9ECBFF">          where: { id: parseInt(id) },</span></span>
+<span class="line"><span style="color:#9ECBFF">        });</span></span>
+<span class="line"><span style="color:#9ECBFF">        </span></span>
+<span class="line"><span style="color:#9ECBFF">        if (!item) {</span></span>
+<span class="line"><span style="color:#9ECBFF">          reply.code(404);</span></span>
+<span class="line"><span style="color:#9ECBFF">          return { error: 'Not found' };</span></span>
+<span class="line"><span style="color:#9ECBFF">        }</span></span>
+<span class="line"><span style="color:#9ECBFF">        </span></span>
+<span class="line"><span style="color:#9ECBFF">        return item;</span></span>
+<span class="line"><span style="color:#9ECBFF">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">      // Create ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#9ECBFF">      fastify.post('/${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}', async (request, reply) => {</span></span>
+<span class="line"><span style="color:#9ECBFF">        const item = await fastify.prisma.${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}.create({</span></span>
+<span class="line"><span style="color:#9ECBFF">          data: request.body,</span></span>
+<span class="line"><span style="color:#9ECBFF">        });</span></span>
+<span class="line"><span style="color:#9ECBFF">        reply.code(201);</span></span>
+<span class="line"><span style="color:#9ECBFF">        return item;</span></span>
+<span class="line"><span style="color:#9ECBFF">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">      // Update ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#9ECBFF">      fastify.patch('/${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}/:id', async (request, reply) => {</span></span>
+<span class="line"><span style="color:#9ECBFF">        const { id } = request.params as { id: string };</span></span>
+<span class="line"><span style="color:#9ECBFF">        const item = await fastify.prisma.${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}.update({</span></span>
+<span class="line"><span style="color:#9ECBFF">          where: { id: parseInt(id) },</span></span>
+<span class="line"><span style="color:#9ECBFF">          data: request.body,</span></span>
+<span class="line"><span style="color:#9ECBFF">        });</span></span>
+<span class="line"><span style="color:#9ECBFF">        return item;</span></span>
+<span class="line"><span style="color:#9ECBFF">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">      // Delete ${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#9ECBFF">      fastify.delete('/${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}/:id', async (request, reply) => {</span></span>
+<span class="line"><span style="color:#9ECBFF">        const { id } = request.params as { id: string };</span></span>
+<span class="line"><span style="color:#9ECBFF">        await fastify.prisma.${</span><span style="color:#E1E4E8">lowerModel</span><span style="color:#9ECBFF">}.delete({</span></span>
+<span class="line"><span style="color:#9ECBFF">          where: { id: parseInt(id) },</span></span>
+<span class="line"><span style="color:#9ECBFF">        });</span></span>
+<span class="line"><span style="color:#9ECBFF">        reply.code(204);</span></span>
+<span class="line"><span style="color:#9ECBFF">      });</span></span>
+<span class="line"><span style="color:#9ECBFF">    `</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> generateAngularSdk</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">dmmf</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">outputPath</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">cyan</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">Generating Angular SDK...'</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> servicesDir</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(process.</span><span style="color:#B392F0">cwd</span><span style="color:#E1E4E8">(), outputPath, </span><span style="color:#9ECBFF">'services'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> modelsDir</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(process.</span><span style="color:#B392F0">cwd</span><span style="color:#E1E4E8">(), outputPath, </span><span style="color:#9ECBFF">'models'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">ensureDir</span><span style="color:#E1E4E8">(servicesDir);</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">ensureDir</span><span style="color:#E1E4E8">(modelsDir);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> project</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Project</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Generate models (TypeScript interfaces)</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">generateModels</span><span style="color:#E1E4E8">(dmmf, modelsDir, project);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Generate services</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> model</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> dmmf.datamodel.models) {</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> fileName</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> `${</span><span style="color:#E1E4E8">model</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">.</span><span style="color:#B392F0">toLowerCase</span><span style="color:#9ECBFF">()</span><span style="color:#9ECBFF">}.service.ts`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> filePath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(servicesDir, fileName);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> sourceFile</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">createSourceFile</span><span style="color:#E1E4E8">(filePath, </span><span style="color:#9ECBFF">''</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">        overwrite: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">      // Add Angular imports</span></span>
+<span class="line"><span style="color:#E1E4E8">      sourceFile.</span><span style="color:#B392F0">addImportDeclaration</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        namedImports: [</span><span style="color:#9ECBFF">'Injectable'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">        moduleSpecifier: </span><span style="color:#9ECBFF">'@angular/core'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      sourceFile.</span><span style="color:#B392F0">addImportDeclaration</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        namedImports: [</span><span style="color:#9ECBFF">'HttpClient'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">        moduleSpecifier: </span><span style="color:#9ECBFF">'@angular/common/http'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      sourceFile.</span><span style="color:#B392F0">addImportDeclaration</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        namedImports: [</span><span style="color:#9ECBFF">'Observable'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">        moduleSpecifier: </span><span style="color:#9ECBFF">'rxjs'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      sourceFile.</span><span style="color:#B392F0">addImportDeclaration</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        namedImports: [model.name],</span></span>
+<span class="line"><span style="color:#E1E4E8">        moduleSpecifier: </span><span style="color:#9ECBFF">`../models/${</span><span style="color:#E1E4E8">model</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">.</span><span style="color:#B392F0">toLowerCase</span><span style="color:#9ECBFF">()</span><span style="color:#9ECBFF">}.model`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">      // Add @Injectable decorator and service class</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> serviceClass</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> sourceFile.</span><span style="color:#B392F0">addClass</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        name: </span><span style="color:#9ECBFF">`${</span><span style="color:#E1E4E8">model</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}Service`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        isExported: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        decorators: [</span></span>
+<span class="line"><span style="color:#E1E4E8">          {</span></span>
+<span class="line"><span style="color:#E1E4E8">            name: </span><span style="color:#9ECBFF">'Injectable'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            arguments: [</span><span style="color:#9ECBFF">'{ providedIn: </span><span style="color:#79B8FF">\'</span><span style="color:#9ECBFF">root</span><span style="color:#79B8FF">\'</span><span style="color:#9ECBFF"> }'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">          },</span></span>
+<span class="line"><span style="color:#E1E4E8">        ],</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">      // Add private http property</span></span>
+<span class="line"><span style="color:#E1E4E8">      serviceClass.</span><span style="color:#B392F0">addProperty</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        name: </span><span style="color:#9ECBFF">'baseUrl'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        scope: Scope.Private,</span></span>
+<span class="line"><span style="color:#E1E4E8">        isReadonly: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        initializer: </span><span style="color:#9ECBFF">`'http://localhost:3000/${</span><span style="color:#E1E4E8">model</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">.</span><span style="color:#B392F0">toLowerCase</span><span style="color:#9ECBFF">()</span><span style="color:#9ECBFF">}'`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">      // Add constructor</span></span>
+<span class="line"><span style="color:#E1E4E8">      serviceClass.</span><span style="color:#B392F0">addConstructor</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        parameters: [</span></span>
+<span class="line"><span style="color:#E1E4E8">          {</span></span>
+<span class="line"><span style="color:#E1E4E8">            name: </span><span style="color:#9ECBFF">'http'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            type: </span><span style="color:#9ECBFF">'HttpClient'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            scope: Scope.Private,</span></span>
+<span class="line"><span style="color:#E1E4E8">          },</span></span>
+<span class="line"><span style="color:#E1E4E8">        ],</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">      // Add CRUD methods</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">addServiceMethods</span><span style="color:#E1E4E8">(serviceClass, model.name);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      await</span><span style="color:#E1E4E8"> sourceFile.</span><span style="color:#B392F0">save</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">green</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`  ✓ ${</span><span style="color:#E1E4E8">fileName</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> generateModels</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">dmmf</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">modelsDir</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">project</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Project</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> model</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> dmmf.datamodel.models) {</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> fileName</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> `${</span><span style="color:#E1E4E8">model</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">.</span><span style="color:#B392F0">toLowerCase</span><span style="color:#9ECBFF">()</span><span style="color:#9ECBFF">}.model.ts`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> filePath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(modelsDir, fileName);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> sourceFile</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">createSourceFile</span><span style="color:#E1E4E8">(filePath, </span><span style="color:#9ECBFF">''</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">        overwrite: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">      // Generate interface</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> interfaceDecl</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> sourceFile.</span><span style="color:#B392F0">addInterface</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        name: model.name,</span></span>
+<span class="line"><span style="color:#E1E4E8">        isExported: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> field</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> model.fields) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        interfaceDecl.</span><span style="color:#B392F0">addProperty</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">          name: field.name,</span></span>
+<span class="line"><span style="color:#E1E4E8">          type: </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">mapPrismaTypeToTs</span><span style="color:#E1E4E8">(field.type),</span></span>
+<span class="line"><span style="color:#E1E4E8">          hasQuestionToken: </span><span style="color:#F97583">!</span><span style="color:#E1E4E8">field.isRequired,</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">      await</span><span style="color:#E1E4E8"> sourceFile.</span><span style="color:#B392F0">save</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#B392F0"> mapPrismaTypeToTs</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">prismaType</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> typeMap</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Record</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#79B8FF">string</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">string</span><span style="color:#E1E4E8">> </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      Int: </span><span style="color:#9ECBFF">'number'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      Float: </span><span style="color:#9ECBFF">'number'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      String: </span><span style="color:#9ECBFF">'string'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      Boolean: </span><span style="color:#9ECBFF">'boolean'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      DateTime: </span><span style="color:#9ECBFF">'Date'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      Json: </span><span style="color:#9ECBFF">'any'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> typeMap[prismaType] </span><span style="color:#F97583">||</span><span style="color:#9ECBFF"> 'any'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#B392F0"> addServiceMethods</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">serviceClass</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">modelName</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> lowerModel</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> modelName.</span><span style="color:#B392F0">toLowerCase</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // list()</span></span>
+<span class="line"><span style="color:#E1E4E8">    serviceClass.</span><span style="color:#B392F0">addMethod</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      name: </span><span style="color:#9ECBFF">'list'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      returnType: </span><span style="color:#9ECBFF">`Observable&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}[]>`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      statements: </span><span style="color:#9ECBFF">`return this.http.get&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}[]>(this.baseUrl);`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // getById()</span></span>
+<span class="line"><span style="color:#E1E4E8">    serviceClass.</span><span style="color:#B392F0">addMethod</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      name: </span><span style="color:#9ECBFF">'getById'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      parameters: [{ name: </span><span style="color:#9ECBFF">'id'</span><span style="color:#E1E4E8">, type: </span><span style="color:#9ECBFF">'number'</span><span style="color:#E1E4E8"> }],</span></span>
+<span class="line"><span style="color:#E1E4E8">      returnType: </span><span style="color:#9ECBFF">`Observable&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}>`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      statements: </span><span style="color:#9ECBFF">`return this.http.get&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}>(</span><span style="color:#79B8FF">\`\$</span><span style="color:#9ECBFF">{this.baseUrl}/</span><span style="color:#79B8FF">\$</span><span style="color:#9ECBFF">{id}</span><span style="color:#79B8FF">\`</span><span style="color:#9ECBFF">);`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // create()</span></span>
+<span class="line"><span style="color:#E1E4E8">    serviceClass.</span><span style="color:#B392F0">addMethod</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      name: </span><span style="color:#9ECBFF">'create'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      parameters: [{ name: </span><span style="color:#9ECBFF">'data'</span><span style="color:#E1E4E8">, type: </span><span style="color:#9ECBFF">`Partial&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}>`</span><span style="color:#E1E4E8"> }],</span></span>
+<span class="line"><span style="color:#E1E4E8">      returnType: </span><span style="color:#9ECBFF">`Observable&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}>`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      statements: </span><span style="color:#9ECBFF">`return this.http.post&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}>(this.baseUrl, data);`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // update()</span></span>
+<span class="line"><span style="color:#E1E4E8">    serviceClass.</span><span style="color:#B392F0">addMethod</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      name: </span><span style="color:#9ECBFF">'update'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      parameters: [</span></span>
+<span class="line"><span style="color:#E1E4E8">        { name: </span><span style="color:#9ECBFF">'id'</span><span style="color:#E1E4E8">, type: </span><span style="color:#9ECBFF">'number'</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">        { name: </span><span style="color:#9ECBFF">'data'</span><span style="color:#E1E4E8">, type: </span><span style="color:#9ECBFF">`Partial&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}>`</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">      ],</span></span>
+<span class="line"><span style="color:#E1E4E8">      returnType: </span><span style="color:#9ECBFF">`Observable&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}>`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      statements: </span><span style="color:#9ECBFF">`return this.http.patch&#x3C;${</span><span style="color:#E1E4E8">modelName</span><span style="color:#9ECBFF">}>(</span><span style="color:#79B8FF">\`\$</span><span style="color:#9ECBFF">{this.baseUrl}/</span><span style="color:#79B8FF">\$</span><span style="color:#9ECBFF">{id}</span><span style="color:#79B8FF">\`</span><span style="color:#9ECBFF">, data);`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // delete()</span></span>
+<span class="line"><span style="color:#E1E4E8">    serviceClass.</span><span style="color:#B392F0">addMethod</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      name: </span><span style="color:#9ECBFF">'delete'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      parameters: [{ name: </span><span style="color:#9ECBFF">'id'</span><span style="color:#E1E4E8">, type: </span><span style="color:#9ECBFF">'number'</span><span style="color:#E1E4E8"> }],</span></span>
+<span class="line"><span style="color:#E1E4E8">      returnType: </span><span style="color:#9ECBFF">'Observable&#x3C;void>'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      statements: </span><span style="color:#9ECBFF">`return this.http.delete&#x3C;void>(</span><span style="color:#79B8FF">\`\$</span><span style="color:#9ECBFF">{this.baseUrl}/</span><span style="color:#79B8FF">\$</span><span style="color:#9ECBFF">{id}</span><span style="color:#79B8FF">\`</span><span style="color:#9ECBFF">);`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="testing">Testing</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># Generate code</span></span>
+<span class="line"><span style="color:#B392F0">databridge</span><span style="color:#9ECBFF"> generate</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Check generated files</span></span>
+<span class="line"><span style="color:#B392F0">tree</span><span style="color:#9ECBFF"> apps/api/src/routes</span></span>
+<span class="line"><span style="color:#B392F0">tree</span><span style="color:#9ECBFF"> src/app/databridge</span></span></code></pre>
+<p><strong>Generated API Route Example (products.ts):</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { FastifyInstance } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'fastify'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> default</span><span style="color:#F97583"> async</span><span style="color:#F97583"> function</span><span style="color:#B392F0"> registerRoutes</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fastify</span><span style="color:#F97583">:</span><span style="color:#B392F0"> FastifyInstance</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  fastify.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/product'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">reply</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> items</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> fastify.prisma.product.</span><span style="color:#B392F0">findMany</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> items;</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#6A737D">  // ... more routes</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>Generated Angular Service Example (product.service.ts):</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Injectable } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@angular/core'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { HttpClient } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@angular/common/http'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Observable } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'rxjs'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Product } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '../models/product.model'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#B392F0">Injectable</span><span style="color:#E1E4E8">({ providedIn: </span><span style="color:#9ECBFF">'root'</span><span style="color:#E1E4E8"> })</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ProductService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> readonly</span><span style="color:#FFAB70"> baseUrl</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> 'http://localhost:3000/product'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  constructor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">private</span><span style="color:#FFAB70"> http</span><span style="color:#F97583">:</span><span style="color:#B392F0"> HttpClient</span><span style="color:#E1E4E8">) {}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  list</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Observable</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Product</span><span style="color:#E1E4E8">[]> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.http.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Product</span><span style="color:#E1E4E8">[]>(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.baseUrl);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">  getById</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">id</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> number</span><span style="color:#E1E4E8">)</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Observable</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Product</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.http.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#B392F0">Product</span><span style="color:#E1E4E8">>(</span><span style="color:#9ECBFF">`${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">baseUrl</span><span style="color:#9ECBFF">}/${</span><span style="color:#E1E4E8">id</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // ... more methods</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<hr>
+<h2 id="command-4-serve">Command 4: Serve</h2>
+<h3 id="purpose-1">Purpose</h3>
+<p>Start a Fastify web server that:</p>
+<ul>
+<li>Auto-discovers and registers generated routes</li>
+<li>Enables CORS for Angular app</li>
+<li>Provides health check endpoint</li>
+<li>Creates Prisma plugin for database access</li>
+</ul>
+<h3 id="key-concepts-1">Key Concepts</h3>
+<h4 id="1-fastify-framework">1. Fastify Framework</h4>
+<p><strong>Fastify is one of the fastest Node.js web frameworks:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> Fastify </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'fastify'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> fastify</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Fastify</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">  logger: {</span></span>
+<span class="line"><span style="color:#E1E4E8">    transport: {</span></span>
+<span class="line"><span style="color:#E1E4E8">      target: </span><span style="color:#9ECBFF">'pino-pretty'</span><span style="color:#E1E4E8">,  </span><span style="color:#6A737D">// Pretty console logs</span></span>
+<span class="line"><span style="color:#E1E4E8">      options: { colorize: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">    },</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Start server</span></span>
+<span class="line"><span style="color:#F97583">await</span><span style="color:#E1E4E8"> fastify.</span><span style="color:#B392F0">listen</span><span style="color:#E1E4E8">({ port: </span><span style="color:#79B8FF">3000</span><span style="color:#E1E4E8">, host: </span><span style="color:#9ECBFF">'0.0.0.0'</span><span style="color:#E1E4E8"> });</span></span></code></pre>
+<p><strong>Why Fastify?</strong></p>
+<ul>
+<li>Fast: ~30% faster than Express</li>
+<li>Modern: Built-in async/await support</li>
+<li>Type-safe: Great TypeScript support</li>
+<li>Plugin system: Modular architecture</li>
+</ul>
+<h4 id="2-cors-cross-origin-resource-sharing">2. CORS (Cross-Origin Resource Sharing)</h4>
+<p><strong>Allows Angular app to call API from different origin:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> cors </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@fastify/cors'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">await</span><span style="color:#E1E4E8"> fastify.</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(cors, {</span></span>
+<span class="line"><span style="color:#E1E4E8">  origin: </span><span style="color:#9ECBFF">'*'</span><span style="color:#E1E4E8">,  </span><span style="color:#6A737D">// Allow all origins (config from .databridge.json)</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p><strong>Without CORS:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Angular (http://localhost:4200) → API (http://localhost:3000)</span></span>
+<span class="line"><span>❌ Browser blocks request: "No 'Access-Control-Allow-Origin' header"</span></span></code></pre>
+<p><strong>With CORS:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Angular (http://localhost:4200) → API (http://localhost:3000)</span></span>
+<span class="line"><span>✅ API adds header: Access-Control-Allow-Origin: *</span></span></code></pre>
+<h4 id="3-dynamic-route-registration-glob">3. Dynamic Route Registration (glob)</h4>
+<p><strong>Automatically find and load route files:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { glob } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'glob'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Find all .ts/.js files in routes directory</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> routeFiles</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#B392F0"> glob</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'**/*.{ts,js}'</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">  cwd: routesDir,</span></span>
+<span class="line"><span style="color:#E1E4E8">  absolute: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// [ '/path/to/routes/product.ts', '/path/to/routes/user.ts' ]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// Import and register each route</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> file</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> routeFiles) {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> routeModule</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#B392F0"> import</span><span style="color:#E1E4E8">(file);</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> registerFn</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> routeModule.default;</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#F97583">  await</span><span style="color:#B392F0"> registerFn</span><span style="color:#E1E4E8">(fastify);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>Why glob?</strong></p>
+<ul>
+<li>Scales automatically (100 models = 100 routes auto-loaded)</li>
+<li>No manual import statements</li>
+<li>Works with any file structure</li>
+</ul>
+<h4 id="4-fastify-plugins">4. Fastify Plugins</h4>
+<p><strong>Plugins extend Fastify with new functionality:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> fp </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'fastify-plugin'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { PrismaClient } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@prisma/client'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> prismaPlugin</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> fp</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">fastify</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">options</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  const</span><span style="color:#79B8FF"> prisma</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> PrismaClient</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Add prisma to fastify instance</span></span>
+<span class="line"><span style="color:#E1E4E8">  fastify.</span><span style="color:#B392F0">decorate</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'prisma'</span><span style="color:#E1E4E8">, prisma);</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#6A737D">  // Cleanup on shutdown</span></span>
+<span class="line"><span style="color:#E1E4E8">  fastify.</span><span style="color:#B392F0">addHook</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'onClose'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> prisma.</span><span style="color:#B392F0">$disconnect</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  });</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> default</span><span style="color:#E1E4E8"> prismaPlugin;</span></span></code></pre>
+<p><strong>Now routes can use <code>fastify.prisma.product.findMany()</code></strong></p>
+<h3 id="complete-implementation-1">Complete Implementation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// packages/cli/src/commands/serve.ts</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Command } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@oclif/core'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> Fastify </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'fastify'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> cors </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> '@fastify/cors'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { glob } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'glob'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#79B8FF"> *</span><span style="color:#F97583"> as</span><span style="color:#E1E4E8"> fs </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'fs-extra'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#79B8FF"> *</span><span style="color:#F97583"> as</span><span style="color:#E1E4E8"> path </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'path'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> chalk </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'chalk'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { Project } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> 'ts-morph'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> default</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Serve</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Command</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  static</span><span style="color:#FFAB70"> description</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> 'Start the API server with auto-registered routes'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  async</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">:</span><span style="color:#B392F0"> Promise</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#79B8FF">void</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.bold.</span><span style="color:#B392F0">blue</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">🚀 Starting DataBridge API Server...</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">'</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> config</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">loadConfig</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> fastify</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Fastify</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      logger: {</span></span>
+<span class="line"><span style="color:#E1E4E8">        transport: {</span></span>
+<span class="line"><span style="color:#E1E4E8">          target: </span><span style="color:#9ECBFF">'pino-pretty'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">          options: {</span></span>
+<span class="line"><span style="color:#E1E4E8">            colorize: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            translateTime: </span><span style="color:#9ECBFF">'HH:MM:ss'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            ignore: </span><span style="color:#9ECBFF">'pid,hostname'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">          },</span></span>
+<span class="line"><span style="color:#E1E4E8">        },</span></span>
+<span class="line"><span style="color:#E1E4E8">      },</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">registerPlugins</span><span style="color:#E1E4E8">(fastify, config);</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">registerRoutes</span><span style="color:#E1E4E8">(fastify, config.api.outputPath);</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">registerHealthCheck</span><span style="color:#E1E4E8">(fastify);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> port</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> config.api.port </span><span style="color:#F97583">||</span><span style="color:#79B8FF"> 3000</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">      await</span><span style="color:#E1E4E8"> fastify.</span><span style="color:#B392F0">listen</span><span style="color:#E1E4E8">({ port, host: </span><span style="color:#9ECBFF">'0.0.0.0'</span><span style="color:#E1E4E8"> });</span></span>
+<span class="line"><span style="color:#E1E4E8">      </span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">green</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">✅ Server running at http://localhost:${</span><span style="color:#E1E4E8">port</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">cyan</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`📊 Health check: http://localhost:${</span><span style="color:#E1E4E8">port</span><span style="color:#9ECBFF">}/health</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">`</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">error</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">red</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">❌ Failed to start server: ${</span><span style="color:#E1E4E8">error</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">message</span><span style="color:#9ECBFF">}</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">`</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> loadConfig</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> configPath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(process.</span><span style="color:#B392F0">cwd</span><span style="color:#E1E4E8">(), </span><span style="color:#9ECBFF">'.databridge.json'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">await</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">pathExists</span><span style="color:#E1E4E8">(configPath))) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'No .databridge.json found. Run "databridge init" first.'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">readJSON</span><span style="color:#E1E4E8">(configPath);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> registerPlugins</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fastify</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">config</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">    // Enable CORS</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> fastify.</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(cors, {</span></span>
+<span class="line"><span style="color:#E1E4E8">      origin: config.api.cors </span><span style="color:#F97583">||</span><span style="color:#9ECBFF"> '*'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Load Prisma plugin</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> pluginPath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">      process.</span><span style="color:#B392F0">cwd</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">      config.api.outputPath,</span></span>
+<span class="line"><span style="color:#9ECBFF">      'plugins'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">      'prisma.ts'</span></span>
+<span class="line"><span style="color:#E1E4E8">    );</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">await</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">pathExists</span><span style="color:#E1E4E8">(pluginPath))) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">yellow</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'⚠️  Prisma plugin not found. Creating...'</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#F97583">      await</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">createPrismaPlugin</span><span style="color:#E1E4E8">(config.api.outputPath);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> prismaPlugin</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#B392F0"> import</span><span style="color:#E1E4E8">(pluginPath);</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> fastify.</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(prismaPlugin.default);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">green</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'✓ Plugins registered</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">'</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> registerRoutes</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fastify</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">outputPath</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> routesDir</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(process.</span><span style="color:#B392F0">cwd</span><span style="color:#E1E4E8">(), outputPath, </span><span style="color:#9ECBFF">'routes'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">await</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">pathExists</span><span style="color:#E1E4E8">(routesDir))) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'No routes directory found. Run "databridge generate" first.'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">      return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Find all route files</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> routeFiles</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#B392F0"> glob</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'**/*.{ts,js}'</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">      cwd: routesDir,</span></span>
+<span class="line"><span style="color:#E1E4E8">      absolute: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">routeFiles.</span><span style="color:#79B8FF">length</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'No route files found. Run "databridge generate" first.'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">      return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Register each route</span></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> registeredCount </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> file</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> routeFiles) {</span></span>
+<span class="line"><span style="color:#F97583">      try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> routeModule</span><span style="color:#F97583"> =</span><span style="color:#F97583"> await</span><span style="color:#B392F0"> import</span><span style="color:#E1E4E8">(file);</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> registerFn</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> routeModule.default;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">typeof</span><span style="color:#E1E4E8"> registerFn </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> 'function'</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">          await</span><span style="color:#B392F0"> registerFn</span><span style="color:#E1E4E8">(fastify);</span></span>
+<span class="line"><span style="color:#E1E4E8">          registeredCount</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">          </span></span>
+<span class="line"><span style="color:#F97583">          const</span><span style="color:#79B8FF"> routeName</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">basename</span><span style="color:#E1E4E8">(file, path.</span><span style="color:#B392F0">extname</span><span style="color:#E1E4E8">(file));</span></span>
+<span class="line"><span style="color:#79B8FF">          this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">green</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`  ✓ /${</span><span style="color:#E1E4E8">routeName</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">      } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">error</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Failed to load route ${</span><span style="color:#E1E4E8">file</span><span style="color:#9ECBFF">}: ${</span><span style="color:#E1E4E8">error</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">message</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">bold</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">📦 Registered ${</span><span style="color:#E1E4E8">registeredCount</span><span style="color:#9ECBFF">} route(s)</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">`</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> registerHealthCheck</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fastify</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> any</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    fastify.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/health'</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">      return</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        status: </span><span style="color:#9ECBFF">'ok'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        timestamp: </span><span style="color:#F97583">new</span><span style="color:#B392F0"> Date</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">toISOString</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">        uptime: process.</span><span style="color:#B392F0">uptime</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">      };</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> async</span><span style="color:#B392F0"> createPrismaPlugin</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">outputPath</span><span style="color:#F97583">:</span><span style="color:#79B8FF"> string</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> pluginsDir</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(process.</span><span style="color:#B392F0">cwd</span><span style="color:#E1E4E8">(), outputPath, </span><span style="color:#9ECBFF">'plugins'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">ensureDir</span><span style="color:#E1E4E8">(pluginsDir);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> project</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Project</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> filePath</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(pluginsDir, </span><span style="color:#9ECBFF">'prisma.ts'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> sourceFile</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> project.</span><span style="color:#B392F0">createSourceFile</span><span style="color:#E1E4E8">(filePath, </span><span style="color:#9ECBFF">''</span><span style="color:#E1E4E8">, {</span></span>
+<span class="line"><span style="color:#E1E4E8">      overwrite: </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    sourceFile.</span><span style="color:#B392F0">addImportDeclaration</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      defaultImport: </span><span style="color:#9ECBFF">'fp'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      moduleSpecifier: </span><span style="color:#9ECBFF">'fastify-plugin'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    sourceFile.</span><span style="color:#B392F0">addImportDeclaration</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      namedImports: [</span><span style="color:#9ECBFF">'PrismaClient'</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">      moduleSpecifier: </span><span style="color:#9ECBFF">'@prisma/client'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    sourceFile.</span><span style="color:#B392F0">addStatements</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`</span></span>
+<span class="line"><span style="color:#9ECBFF">const prismaPlugin = fp(async (fastify, options) => {</span></span>
+<span class="line"><span style="color:#9ECBFF">  const prisma = new PrismaClient();</span></span>
+<span class="line"><span style="color:#9ECBFF">  </span></span>
+<span class="line"><span style="color:#9ECBFF">  fastify.decorate('prisma', prisma);</span></span>
+<span class="line"><span style="color:#9ECBFF">  </span></span>
+<span class="line"><span style="color:#9ECBFF">  fastify.addHook('onClose', async () => {</span></span>
+<span class="line"><span style="color:#9ECBFF">    await prisma.$disconnect();</span></span>
+<span class="line"><span style="color:#9ECBFF">  });</span></span>
+<span class="line"><span style="color:#9ECBFF">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#9ECBFF">export default prismaPlugin;</span></span>
+<span class="line"><span style="color:#9ECBFF">    `</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    await</span><span style="color:#E1E4E8"> sourceFile.</span><span style="color:#B392F0">save</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(chalk.</span><span style="color:#B392F0">green</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'  ✓ Created prisma.ts plugin</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">'</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="testing-1">Testing</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># Start server</span></span>
+<span class="line"><span style="color:#B392F0">databridge</span><span style="color:#9ECBFF"> serve</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># In another terminal, test endpoints</span></span>
+<span class="line"><span style="color:#B392F0">curl</span><span style="color:#9ECBFF"> http://localhost:3000/health</span></span>
+<span class="line"><span style="color:#B392F0">curl</span><span style="color:#9ECBFF"> http://localhost:3000/product</span></span></code></pre>
+<p><strong>Expected Output:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>🚀 Starting DataBridge API Server...</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>✓ Plugins registered</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  ✓ /product</span></span>
+<span class="line"><span>  ✓ /user</span></span>
+<span class="line"><span>  ✓ /order</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>📦 Registered 3 route(s)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>✅ Server running at http://localhost:3000</span></span>
+<span class="line"><span>📊 Health check: http://localhost:3000/health</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[12:34:56] INFO: Server listening at http://0.0.0.0:3000</span></span></code></pre>
+<hr>
+<h2 id="summary">Summary</h2>
+<h3 id="what-you-built">What You Built</h3>
+<p>A professional CLI with 4 commands:</p>
+<ol>
+<li><strong>init</strong> - Project setup with config files</li>
+<li><strong>introspect</strong> - Read database structure</li>
+<li><strong>generate</strong> - Create API routes and Angular services</li>
+<li><strong>serve</strong> - Run web server with auto-loading</li>
+</ol>
+<h3 id="key-technologies">Key Technologies</h3>
+<ul>
+<li><strong>oclif</strong> - CLI framework</li>
+<li><strong>inquirer</strong> - Interactive prompts</li>
+<li><strong>Prisma</strong> - Database ORM and introspection</li>
+<li><strong>ts-morph</strong> - TypeScript code generation</li>
+<li><strong>Fastify</strong> - High-performance web server</li>
+<li><strong>glob</strong> - File pattern matching</li>
+</ul>
+<h3 id="lines-of-code">Lines of Code</h3>
+<ul>
+<li>init.ts: 213 lines</li>
+<li>introspect.ts: 178 lines</li>
+<li>generate.ts: 402 lines</li>
+<li>serve.ts: 247 lines</li>
+<li><strong>Total: ~1,040 lines of well-documented code</strong></li>
+</ul>
+<hr>
+<p><em>Continue to <a href="./cli-development-part-3.md">Part 3: Testing and Deployment</a></em></p> <nav class="mt-12 pt-8 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-4"><a href="/databridge-docs/docs/advanced/cli-development-part-1" class="group flex flex-col gap-2 p-4 rounded-lg border border-border hover:border-primary transition-colors"><span class="text-sm text-muted-foreground">Previous</span><span class="font-medium group-hover:text-primary transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>CLI Development - Part 1</span></a><a href="/databridge-docs/docs/advanced/cli-development-part-3" class="group flex flex-col gap-2 p-4 rounded-lg border border-border hover:border-primary transition-colors text-right sm:ml-auto"><span class="text-sm text-muted-foreground">Next</span><span class="font-medium group-hover:text-primary transition-colors flex items-center gap-2 justify-end">CLI Development - Part 3<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span></a></nav>  <script type="module">function r(){document.querySelectorAll("pre").forEach(t=>{if(t.querySelector(".copy-button"))return;const o=document.createElement("div");o.className="code-block-wrapper",t.parentNode?.insertBefore(o,t),o.appendChild(t);const e=document.createElement("button");e.className="copy-button",e.setAttribute("aria-label","Copy code"),e.innerHTML=`
+        <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <svg class="check-icon hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      `,e.addEventListener("click",async()=>{const n=t.querySelector("code");if(!n)return;const i=n.textContent||"";try{await navigator.clipboard.writeText(i);const c=e.querySelector(".copy-icon"),s=e.querySelector(".check-icon");c?.classList.add("hidden"),s?.classList.remove("hidden"),e.classList.add("copied"),setTimeout(()=>{c?.classList.remove("hidden"),s?.classList.add("hidden"),e.classList.remove("copied")},2e3)}catch(c){console.error("Failed to copy:",c)}}),o.appendChild(e)})}r();document.addEventListener("astro:page-load",r);</script>  <div class="mt-12 pt-8 border-t border-border"><div class="flex flex-col items-center gap-4 p-6 bg-muted/30 rounded-lg"><h3 class="text-lg font-semibold text-foreground">Was this page helpful?</h3><div class="flex gap-3" id="feedback-buttons"><button data-feedback="yes" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium flex items-center gap-2"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+Yes
+</button><button data-feedback="no" class="px-6 py-2.5 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors font-medium flex items-center gap-2"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path></svg>
+No
+</button></div><div id="feedback-message" class="hidden text-center"><p class="text-sm text-muted-foreground">Thank you for your feedback!</p></div><div id="feedback-form" class="hidden w-full max-w-md"><textarea id="feedback-text" placeholder="Tell us more (optional)..." class="w-full px-4 py-3 border border-border rounded-md bg-background text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary" rows="3"></textarea><div class="flex gap-2 mt-3"><button id="submit-feedback" class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium">
+Submit
+</button><button id="skip-feedback" class="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors text-sm font-medium">
+Skip
+</button></div></div></div></div><script type="module">function l(){const t=document.getElementById("feedback-buttons"),s=document.getElementById("feedback-message"),n=document.getElementById("feedback-form"),m=document.querySelector('[data-feedback="yes"]'),r=document.querySelector('[data-feedback="no"]'),u=document.getElementById("submit-feedback"),f=document.getElementById("skip-feedback"),k=document.getElementById("feedback-text");if(!t||!s||!n)return;let c="";function d(){t?.classList.add("hidden"),n?.classList.add("hidden"),s?.classList.remove("hidden")}function b(e){c=e,t?.classList.add("hidden"),n?.classList.remove("hidden")}m?.addEventListener("click",()=>{a("yes",""),d()}),r?.addEventListener("click",()=>{b("no")}),u?.addEventListener("click",()=>{const e=k?.value||"";a(c,e),d()}),f?.addEventListener("click",()=>{a(c,""),d()});function a(e,g){const o={helpful:e,comment:g,page:window.location.pathname,timestamp:new Date().toISOString()};console.log("Feedback:",o);const i=JSON.parse(localStorage.getItem("clarity-feedback")||"[]");i.push(o),localStorage.setItem("clarity-feedback",JSON.stringify(i))}}l();document.addEventListener("astro:page-load",l);</script>  <div class="mt-8 pt-8 border-t border-border"><a href="https://github.com/alex-migwi/clarity/edit/main/src/content/docs/advanced/cli-development-part-2.md" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>Edit this page on GitHub</a></div> </article> <aside class="hidden xl:block w-64 flex-shrink-0"> <div class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto"> <h2 class="font-semibold mb-4 text-sm">
+On this page
+</h2> <nav class="text-sm" id="table-of-contents"> <ul class="space-y-2.5"> <li class="pl-0 relative"> <a href="#databridge-cli-tutorial---part-2-code-generation--server" data-toc-link data-target="databridge-cli-tutorial---part-2-code-generation--server" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> DataBridge CLI Tutorial - Part 2: Code Generation &amp; Server </a> </li><li class="pl-3 relative"> <a href="#command-3-generate" data-toc-link data-target="command-3-generate" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Command 3: Generate </a> </li><li class="pl-6 relative"> <a href="#purpose" data-toc-link data-target="purpose" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Purpose </a> </li><li class="pl-6 relative"> <a href="#key-concepts" data-toc-link data-target="key-concepts" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Key Concepts </a> </li><li class="pl-9 relative"> <a href="#1-prisma-dmmf-data-model-meta-format" data-toc-link data-target="1-prisma-dmmf-data-model-meta-format" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> 1. Prisma DMMF (Data Model Meta Format) </a> </li><li class="pl-9 relative"> <a href="#2-ts-morph-typescript-ast-manipulation" data-toc-link data-target="2-ts-morph-typescript-ast-manipulation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> 2. ts-morph (TypeScript AST Manipulation) </a> </li><li class="pl-9 relative"> <a href="#3-template-patterns" data-toc-link data-target="3-template-patterns" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> 3. Template Patterns </a> </li><li class="pl-6 relative"> <a href="#the-generation-flow" data-toc-link data-target="the-generation-flow" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> The Generation Flow </a> </li><li class="pl-6 relative"> <a href="#complete-implementation" data-toc-link data-target="complete-implementation" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Complete Implementation </a> </li><li class="pl-6 relative"> <a href="#testing" data-toc-link data-target="testing" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Testing </a> </li><li class="pl-3 relative"> <a href="#command-4-serve" data-toc-link data-target="command-4-serve" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Command 4: Serve </a> </li><li class="pl-6 relative"> <a href="#purpose-1" data-toc-link data-target="purpose-1" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Purpose </a> </li><li class="pl-6 relative"> <a href="#key-concepts-1" data-toc-link data-target="key-concepts-1" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Key Concepts </a> </li><li class="pl-9 relative"> <a href="#1-fastify-framework" data-toc-link data-target="1-fastify-framework" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> 1. Fastify Framework </a> </li><li class="pl-9 relative"> <a href="#2-cors-cross-origin-resource-sharing" data-toc-link data-target="2-cors-cross-origin-resource-sharing" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> 2. CORS (Cross-Origin Resource Sharing) </a> </li><li class="pl-9 relative"> <a href="#3-dynamic-route-registration-glob" data-toc-link data-target="3-dynamic-route-registration-glob" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> 3. Dynamic Route Registration (glob) </a> </li><li class="pl-9 relative"> <a href="#4-fastify-plugins" data-toc-link data-target="4-fastify-plugins" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> 4. Fastify Plugins </a> </li><li class="pl-6 relative"> <a href="#complete-implementation-1" data-toc-link data-target="complete-implementation-1" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Complete Implementation </a> </li><li class="pl-6 relative"> <a href="#testing-1" data-toc-link data-target="testing-1" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Testing </a> </li><li class="pl-3 relative"> <a href="#summary" data-toc-link data-target="summary" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Summary </a> </li><li class="pl-6 relative"> <a href="#what-you-built" data-toc-link data-target="what-you-built" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> What You Built </a> </li><li class="pl-6 relative"> <a href="#key-technologies" data-toc-link data-target="key-technologies" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Key Technologies </a> </li><li class="pl-6 relative"> <a href="#lines-of-code" data-toc-link data-target="lines-of-code" class="block text-muted-foreground hover:text-primary transition-colors duration-200 line-clamp-2 border-l-2 border-transparent hover:border-primary pl-3 -ml-[2px]"> Lines of Code </a> </li> </ul> </nav> <script type="module">function a(){const r=document.querySelectorAll("[data-toc-link]"),o=Array.from(document.querySelectorAll("h1, h2, h3, h4, h5, h6")).filter(t=>t.id);if(r.length===0||o.length===0)return;const s=new IntersectionObserver(t=>{t.forEach(n=>{const d=n.target.getAttribute("id"),e=document.querySelector(`[data-target="${d}"]`);n.isIntersecting&&(r.forEach(i=>{i.classList.remove("text-primary","border-primary","font-medium"),i.classList.add("text-muted-foreground","border-transparent")}),e&&(e.classList.remove("text-muted-foreground","border-transparent"),e.classList.add("text-primary","border-primary","font-medium")))})},{rootMargin:"-100px 0px -66%",threshold:0});o.forEach(t=>s.observe(t))}a();document.addEventListener("astro:page-load",a);</script> </div> </aside> </div> <footer class="mt-20 border-t border-border py-8 text-sm text-muted-foreground"> <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> <div class="flex flex-col md:flex-row justify-between items-center gap-4"> <p>© 2025 DataBridge Docs. All rights reserved.</p> <nav class="flex flex-wrap gap-6 justify-center"> <a href="https://alex-migwi.github.io/databridge-docs" class="hover:text-foreground transition-colors"> Documentation </a><a href="https://github.com/alex-migwi/databridge" class="hover:text-foreground transition-colors"> GitHub </a><a href="/privacy" class="hover:text-foreground transition-colors"> Privacy Policy </a><a href="/terms" class="hover:text-foreground transition-colors"> Terms of Service </a> </nav> </div> </div> </footer> </main> </div> <script type="module">const e=document.getElementById("sidebar"),t=document.getElementById("sidebar-backdrop"),d=document.getElementById("sidebar-toggle");function s(){if(!e||!t)return;!e.classList.contains("-translate-x-full")?(e.classList.add("-translate-x-full"),t.classList.add("hidden"),document.body.style.overflow=""):(e.classList.remove("-translate-x-full"),t.classList.remove("hidden"),document.body.style.overflow="hidden")}d?.addEventListener("click",s);t?.addEventListener("click",s);</script> <script type="module" src="/databridge-docs/_astro/Mermaid.astro_astro_type_script_index_0_lang.D9YJg_q9.js"></script> </body></html>
