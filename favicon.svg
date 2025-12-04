@@ -1,32 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-  <!-- Background -->
-  <rect width="128" height="128" rx="24" fill="url(#gradient)"/>
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simplified bridge favicon -->
   
-  <!-- Letter C - representing Clarity -->
-  <path d="M64 24C43.13 24 26 41.13 26 62C26 82.87 43.13 100 64 100C73.82 100 82.79 96.4 89.57 90.18" 
-        stroke="white" 
-        stroke-width="10" 
-        stroke-linecap="round"
-        fill="none"/>
+  <!-- Bridge deck -->
+  <rect x="4" y="15" width="24" height="2" fill="#2563EB" rx="1"/>
   
-  <!-- Sparkle/clarity effect - small stars -->
-  <circle cx="90" cy="38" r="5" fill="white" opacity="0.9"/>
-  <circle cx="99" cy="51" r="3.5" fill="white" opacity="0.8"/>
-  <circle cx="96" cy="32" r="3" fill="white" opacity="0.7"/>
+  <!-- Main arch -->
+  <path d="M 6 17 Q 16 8, 26 17" 
+        fill="none" 
+        stroke="#2563EB" 
+        stroke-width="2.5" 
+        stroke-linecap="round"/>
   
-  <!-- Inner accent line for depth -->
-  <path d="M64 35C48.54 35 36 47.54 36 63C36 78.46 48.54 91 64 91C72.44 91 80.05 87.52 85.43 81.77" 
-        stroke="white" 
-        stroke-width="5" 
-        stroke-linecap="round"
-        fill="none"
-        opacity="0.5"/>
+  <!-- Support pillars -->
+  <rect x="8" y="17" width="2" height="8" fill="#1E40AF" rx="0.5"/>
+  <rect x="22" y="17" width="2" height="8" fill="#1E40AF" rx="0.5"/>
   
-  <!-- Gradient definition -->
-  <defs>
-    <linearGradient id="gradient" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#4F46E5"/>
-      <stop offset="100%" stop-color="#06B6D4"/>
-    </linearGradient>
-  </defs>
+  <!-- Foundations -->
+  <rect x="6" y="25" width="6" height="2" fill="#1E40AF" rx="0.5"/>
+  <rect x="20" y="25" width="6" height="2" fill="#1E40AF" rx="0.5"/>
 </svg>
