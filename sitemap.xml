@@ -7,97 +7,97 @@
   </url>
     <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/changelog</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/releases</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/introduction</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/advanced/cli-development-part-2</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/development/testing-guide</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/advanced/cli-development-part-1</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/advanced/cli-development-part-3</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/development/understanding-generated-code</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/advanced/cli-development-part-1</loc>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/advanced/cli-development-part-3</loc>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/development/validation-guide</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/getting-started/core-concepts</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/getting-started/database-setup</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/getting-started/getting-started-guide</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/getting-started/quick-start</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/advanced/docusaurus-setup</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://alex-migwi.github.io/databridge-docs/docs/databridge/deployment/production-deployment</loc>
-    <lastmod>2025-12-04T13:08:34.787Z</lastmod>
+    <lastmod>2025-12-04T13:51:25.658Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
