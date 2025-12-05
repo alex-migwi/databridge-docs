@@ -42,12 +42,17 @@
   {
     "slug": "getting-started/quick-start",
     "title": "getting-started/quick-start",
-    "content": "# Quick Start Guide\n\nGet DataBridge running in 5 minutes!\n\n---\n\n## Prerequisites\n\n- Node.js 20 or higher\n- MySQL database (local or remote)\n- Basic terminal knowledge\n\n---\n\n## Installation\n\nChoose the platform-specific package for your OS:\n\n```bash\n# Windows\nnpm install -g https://github.com/alex-migwi/databridge/releases/download/v0.1.0/databridge-cli-win32-v0.1.0.tgz\n\n# macOS\nnpm install -g https://github.com/alex-migwi/databridge/releases/download/v0.1.0/databridge-cli-darwin-v0.1.0.tgz\n\n# Li"
+    "content": "# Quick Start Guide\n\nGet DataBridge running in 5 minutes!\n\n---\n\n## Prerequisites\n\n- Node.js 20 or higher\n- MySQL database (local or remote)\n- Basic terminal knowledge\n\n---\n\n## Installation\n\nChoose the platform-specific package for your OS:\n\n```bash\n# Windows\nnpm install -g @databridge-cli/cli-win32\n\n# macOS\nnpm install -g @databridge-cli/cli-darwin\n\n# Linux\nnpm install -g @databridge-cli/cli-linux\n\n# Verify installation\ndatabridge --version\n```\n\n> **Zero npm install required!** All dependencies "
   },
   {
     "slug": "introduction",
     "title": "introduction",
-    "content": "# DataBridge\n\n> **The open-source, self-hosted developer toolkit for MySQL + Angular teams**\n> \n> Auto-generate type-safe APIs, Typescripts SDKs for Angular, React and Vue apps from your MySQL database (in future will support PostgreSQL and MongoDB) — like Firebase DataConnect, but for SQL.\n\n**DataBridge** bridges your database and your frontend apps with automatically generated, type-safe code. Skip the boilerplate, stay in sync, keep control.\n\n## 🎯 What Problem Does It Solve?\n\n**The Pain:**\n-"
+    "content": "# DataBridge\n\n> **The free, self-hosted developer toolkit for auto-generating type-safe APIs and Typescript SDKs from your database**\n> \n> Auto-generate type-safe APIs, Typescripts SDKs for Angular, React and Vue apps from your MySQL database (in future will support PostgreSQL and MongoDB) — like Firebase DataConnect, but for SQL.\n\n**DataBridge** bridges your database and your frontend apps with automatically generated, type-safe code. Skip the boilerplate, stay in sync, keep control.\n\n## 🎯 Wha"
+  },
+  {
+    "slug": "license",
+    "title": "license",
+    "content": "# License & Terms\n\nDataBridge is proprietary software with a hybrid licensing model designed to support both individual developers and commercial users.\n\n## 📋 License Overview\n\nDataBridge is distributed under a **Proprietary Software License** with an End User License Agreement (EULA). This means:\n\n- ✅ **Free to use** for personal projects and small businesses\n- ✅ **Source code is proprietary** (not open source)\n- ✅ **Commercial use available** with clear terms\n- ✅ **No vendor lock-in** - your "
   },
   {
     "slug": "releases",
