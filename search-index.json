@@ -45,14 +45,9 @@
     "content": "# Quick Start Guide\n\nGet DataBridge running in 5 minutes!\n\n---\n\n## Prerequisites\n\n- Node.js 20 or higher\n- MySQL database (local or remote)\n- Basic terminal knowledge\n\n---\n\n## Installation\n\nChoose the platform-specific package for your OS:\n\n```bash\n# Windows\nnpm install -g https://github.com/alex-migwi/databridge/releases/download/v0.1.0/databridge-cli-win32-v0.1.0.tgz\n\n# macOS\nnpm install -g https://github.com/alex-migwi/databridge/releases/download/v0.1.0/databridge-cli-darwin-v0.1.0.tgz\n\n# Li"
   },
   {
-    "slug": "index",
-    "title": "index",
-    "content": "# DataBridge\n\n> **The open-source, self-hosted developer toolkit for MySQL + Angular teams**\n> \n> Auto-generate type-safe APIs, Angular SDKs, and AI-native MCP servers from your MySQL database — like Firebase DataConnect, but for SQL with AI superpowers.\n\n**DataBridge** bridges your MySQL database and Angular frontend with automatically generated, type-safe code. Skip the boilerplate, stay in sync, keep control. Now with MCP server generation for AI-powered database access.\n\n## 🎯 What Problem D"
-  },
-  {
     "slug": "introduction",
     "title": "introduction",
-    "content": "# DataBridge\n\n> **The open-source, self-hosted developer toolkit for MySQL + Angular teams**\n> \n> Auto-generate type-safe APIs, Angular SDKs, and AI-native MCP servers from your MySQL database — like Firebase DataConnect, but for SQL with AI superpowers.\n\n**DataBridge** bridges your MySQL database and Angular frontend with automatically generated, type-safe code. Skip the boilerplate, stay in sync, keep control.\n\n## 🎯 What Problem Does It Solve?\n\n**The Pain:**\n- Writing CRUD APIs manually is re"
+    "content": "# DataBridge\n\n> **The open-source, self-hosted developer toolkit for MySQL + Angular teams**\n> \n> Auto-generate type-safe APIs, Typescripts SDKs for Angular, React and Vue apps from your MySQL database (in future will support PostgreSQL and MongoDB) — like Firebase DataConnect, but for SQL.\n\n**DataBridge** bridges your database and your frontend apps with automatically generated, type-safe code. Skip the boilerplate, stay in sync, keep control.\n\n## 🎯 What Problem Does It Solve?\n\n**The Pain:**\n-"
   },
   {
     "slug": "releases",
