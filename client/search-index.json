@@ -1,0 +1,97 @@
+[
+  {
+    "slug": "api/README",
+    "title": "api/README",
+    "content": "# API Tutorials & OpenAPI Ecosystem\n\nWelcome to DataBridge's **OpenAPI-first development toolkit**! This guide covers everything from interactive API documentation to multi-language SDK generation.\n\n## 🎯 Quick Navigation\n\n### Getting Started (5 minutes)\n1. [**OpenAPI & Swagger UI**](./openapi-swagger-ui.md) - Interactive API documentation\n2. [**Quick Reference**](./openapi-quick-reference.md) - Commands and configuration cheat sheet\n\n### SDK Generation (10 minutes)\n3. [**Multi-Language SDK Gene"
+  },
+  {
+    "slug": "api/api-testing-dredd",
+    "title": "api/api-testing-dredd",
+    "content": "# API Testing with Dredd\n\n## Overview\n\nDredd is a powerful tool for **contract testing** - it validates that your API implementation matches your OpenAPI specification. DataBridge includes automated Dredd setup for continuous API testing.\n\n## What is Contract Testing?\n\nContract testing ensures your API:\n- ✅ Implements all endpoints in the OpenAPI spec\n- ✅ Returns correct HTTP status codes\n- ✅ Returns data in the expected format\n- ✅ Validates request parameters properly\n- ✅ Handles errors as docu"
+  },
+  {
+    "slug": "api/cli-reference",
+    "title": "api/cli-reference",
+    "content": "# CLI Command Reference\n\nComplete reference for all DataBridge commands, flags, and usage examples.\n\n## Table of Contents\n\n- [Installation](#installation)\n- [Getting Help](#getting-help)\n- [Commands](#commands)\n  - [init](#init---initialize-project)\n  - [introspect](#introspect---read-database-schema)\n  - [generate](#generate---create-api-code)\n  - [generate-sdk](#generate-sdk---create-client-sdks)\n  - [serve](#serve---start-development-server)\n- [Common Workflows](#common-workflows)\n\n---\n\n## In"
+  },
+  {
+    "slug": "api/mock-servers-prism",
+    "title": "api/mock-servers-prism",
+    "content": "# Mock Servers with Prism\n\n## Overview\n\nPrism creates **mock API servers** from your OpenAPI specification, enabling frontend developers to work in parallel with backend development. No database required!\n\n## What is a Mock Server?\n\nA mock server:\n- ✅ Implements all endpoints from your OpenAPI spec\n- ✅ Generates realistic fake data based on schemas\n- ✅ Returns example responses\n- ✅ Validates requests\n- ✅ Simulates error responses\n- ✅ Enables parallel frontend/backend development\n\n## Quick Start\n"
+  },
+  {
+    "slug": "api/openapi-quick-reference",
+    "title": "api/openapi-quick-reference",
+    "content": "# OpenAPI Quick Reference\n\n## Common Commands\n\n```bash\n# Generate OpenAPI spec\ndatabridge generate\n\n# View spec location\ncat src/openapi.json\n\n# Start server with Swagger UI\nnpm run dev\n\n# Visit Swagger UI\nopen http://localhost:3000/docs\n\n# Download spec\ncurl http://localhost:3000/openapi.json > api-spec.json\n```\n\n## URL Endpoints\n\n| Endpoint | Purpose |\n|----------|---------|\n| `/docs` | Swagger UI - Interactive API documentation |\n| `/openapi.json` | OpenAPI 3.0 specification (downloadable) |\n"
+  },
+  {
+    "slug": "api/openapi-swagger-ui",
+    "title": "api/openapi-swagger-ui",
+    "content": "# OpenAPI & Swagger UI Tutorial\n\n## Overview\n\nDataBridge automatically generates **OpenAPI 3.0 specifications** from your Prisma schema and includes **Swagger UI** for interactive API documentation and testing.\n\n## What You Get\n\nWhen you run `databridge generate`, you automatically get:\n\n- ✅ **OpenAPI 3.0 Spec** (`openapi.json`) - Industry-standard API documentation\n- ✅ **Swagger UI** at `/docs` - Interactive API explorer\n- ✅ **Spec Endpoint** at `/openapi.json` - Downloadable specification\n- ✅ "
+  },
+  {
+    "slug": "api/sdk-generation",
+    "title": "api/sdk-generation",
+    "content": "# Multi-Language SDK Generation\n\n## Overview\n\nDataBridge can generate **type-safe client SDKs** in 50+ programming languages from your OpenAPI specification. Enable backend teams to consume your API in their preferred language!\n\n## Supported Languages\n\n### Most Popular\n\n- **Python** - With type hints and async support\n- **Go** - Idiomatic Go with context\n- **C# / .NET** - .NET Standard 2.0+\n- **Java** - Java 8+ with OkHttp/Retrofit\n- **TypeScript** - Axios or Fetch-based or HttpClient\n- **JavaSc"
+  },
+  {
+    "slug": "changelog",
+    "title": "changelog",
+    "content": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n## [Unreleased]\n\n## [0.2.0] - 2025-12-09\n\n### Added\n\n- **OpenAPI 3.0 Specification Generation** - Automatic generation from Prisma schema\n  - Schema generation for all models with proper types\n  - CRUD operation definitions with DTOs\n  - Enum and "
+  },
+  {
+    "slug": "deployment/production-deployment",
+    "title": "deployment/production-deployment",
+    "content": "# Production Deployment\n\nComplete guide to deploying your DataBridge API to production environments.\n\n## Overview\n\nThis guide covers deployment to popular platforms:\n- Railway\n- Vercel\n- AWS (EC2, ECS)\n- DigitalOcean\n- Heroku alternatives\n\n---\n\n## Pre-Deployment Checklist\n\n### Environment Variables\n\nCreate `.env.production`:\n\n```bash\nDATABASE_URL=\"mysql://user:pass@production-db:3306/mydb?ssl=true\"\nNODE_ENV=production\nAPI_PORT=8080\nCORS_ORIGIN=\"https://yourdomain.com\"\nJWT_SECRET=\"your-production"
+  },
+  {
+    "slug": "development/testing-guide",
+    "title": "development/testing-guide",
+    "content": "# Testing Your API\n\nLearn how to effectively test your DataBridge-generated API.\n\n## Overview\n\nDataBridge automatically generates test scripts, but you should also write custom tests for:\n- Business logic\n- Edge cases\n- Integration scenarios\n- Performance\n\n---\n\n## Auto-Generated Tests\n\nWhen you run `databridge generate`, you get `test-api.sh` with tests for:\n- Health checks\n- CRUD operations\n- Validation rules\n- Error handling\n\n### Running Generated Tests\n\n```bash\n# Start your API\nnpm run dev\n\n#"
+  },
+  {
+    "slug": "development/understanding-generated-code",
+    "title": "development/understanding-generated-code",
+    "content": "# Understanding Generated Code\n\nLearn what DataBridge creates when you run `databridge generate` and how each piece fits together.\n\n## Overview\n\nWhen you run `databridge generate`, DataBridge analyzes your Prisma schema and generates:\n- ✅ **OpenAPI 3.0 Specification** - Industry-standard API documentation\n- ✅ **Swagger UI Plugin** - Interactive API testing at `/docs`\n- ✅ Fastify API routes with full CRUD operations\n- ✅ Zod validation schemas\n- ✅ Prisma plugin for database access\n- ✅ Server confi"
+  },
+  {
+    "slug": "development/validation-guide",
+    "title": "development/validation-guide",
+    "content": "# Validation with Zod\n\nLearn how to customize and extend validation rules for your DataBridge API.\n\n## Overview\n\nDataBridge uses [Zod](https://zod.dev/) for runtime type validation. This guide covers:\n- Understanding auto-generated schemas\n- Adding custom validation rules\n- Handling validation errors\n- Best practices and patterns\n\n---\n\n## Auto-Generated Schemas\n\nWhen you run `databridge generate`, Zod schemas are created based on your Prisma types.\n\n### Prisma to Zod Mapping\n\n| Prisma Type | Zod"
+  },
+  {
+    "slug": "getting-started/core-concepts",
+    "title": "getting-started/core-concepts",
+    "content": "# Core Concepts\n\nUnderstanding the key technologies and patterns used in DataBridge.\n\n---\n\n## Table of Contents\n\n1. [CLI Frameworks](#cli-frameworks)\n2. [Database Introspection](#database-introspection)\n3. [Code Generation](#code-generation)\n4. [Web Frameworks](#web-frameworks)\n5. [TypeScript Patterns](#typescript-patterns)\n6. [Monorepo Architecture](#monorepo-architecture)\n\n---\n\n## CLI Frameworks\n\n### What is a CLI?\n\n**CLI (Command-Line Interface)** is a text-based program that runs in a termin"
+  },
+  {
+    "slug": "getting-started/database-setup",
+    "title": "getting-started/database-setup",
+    "content": "# Database Connection Setup\n\nLearn how to properly configure your database connection for DataBridge.\n\n## Overview\n\nDataBridge v0.2.5 supports 5 major databases. This guide covers:\n- ✅ **MySQL** - Fully tested\n- ✅ **PostgreSQL** - Fully tested\n- ✅ **SQL Server** - Fully tested\n- ✅ **SQLite** - File-based database\n- ✅ **CockroachDB** - Distributed SQL\n- Connection string formats for each database\n- Environment variable configuration\n- Docker setup examples\n- Troubleshooting connection issues\n\n---"
+  },
+  {
+    "slug": "getting-started/getting-started-guide",
+    "title": "getting-started/getting-started-guide",
+    "content": "# Getting Started with DataBridge\n\n**Last Updated**: December 16, 2025  \n**Version**: 0.2.5  \n**Status**: Living Document - Updated Regularly\n\n> **What is DataBridge?** A powerful CLI tool that automatically generates production-ready APIs and frontend SDKs from your existing database. **Now supports 5 databases**: MySQL, PostgreSQL, SQL Server, SQLite, and CockroachDB. Features built-in Zod validation, comprehensive error handling, production logging, Prisma 7 adapters, and automated testing. N"
+  },
+  {
+    "slug": "getting-started/quick-start",
+    "title": "getting-started/quick-start",
+    "content": "# Quick Start Guide\n\nGet DataBridge running in 5 minutes!\n\n---\n\n## Prerequisites\n\n- Node.js 20 or higher\n- Database: MySQL, PostgreSQL, SQL Server, SQLite, or CockroachDB (local or remote)\n- Basic terminal knowledge\n\n> **Version 0.2.5** - Now supports 5 major databases!\n\n---\n\n## Installation\n\nChoose the platform-specific package for your OS:\n\n```bash\n# Windows\nnpm install -g @databridge-cli/cli-win32\n\n# macOS\nnpm install -g @databridge-cli/cli-darwin\n\n# Linux\nnpm install -g @databridge-cli/cli-l"
+  },
+  {
+    "slug": "introduction",
+    "title": "introduction",
+    "content": "# DataBridge\n\n> **The free, self-hosted developer toolkit for auto-generating type-safe APIs and Typescript SDKs from your database**\n> \n> Auto-generate type-safe APIs, Typescripts SDKs for Angular, React and Vue apps from MySQL, PostgreSQL, SQL Server, SQLite, and CockroachDB — like Firebase DataConnect, but for SQL.\n\n**DataBridge** bridges your database and your frontend apps with automatically generated, type-safe code. Skip the boilerplate, stay in sync, keep control.\n\n## What Problem Does I"
+  },
+  {
+    "slug": "license",
+    "title": "license",
+    "content": "# License & Terms\n\nDataBridge is proprietary software with a hybrid licensing model designed to support both individual developers and commercial users.\n\n## License Overview\n\nDataBridge is distributed under a **Proprietary Software License** with an End User License Agreement (EULA). This means:\n\n- ✅ **Free to use** for personal projects and small businesses\n- ✅ **Source code is proprietary** (not open source)\n- ✅ **Commercial use available** with clear terms\n- ✅ **No vendor lock-in** - your gen"
+  },
+  {
+    "slug": "releases",
+    "title": "releases",
+    "content": "# Release Notes\n\nUser-friendly summaries of each release.\n\n---\n\n## v0.2.5 - Multi-Database Support (December 16, 2025)\n\n**Major update!** DataBridge now supports 5 major databases with Prisma 7 adapter architecture.\n\n### What's New\n\n**Multi-Database Support**\n- ✅ **MySQL** - Fully tested with `@prisma/adapter-mariadb`\n- ✅ **PostgreSQL** - Fully tested with `@prisma/adapter-pg`\n- ✅ **SQL Server** - Fully tested with `@prisma/adapter-mssql`\n- ✅ **SQLite** - File-based database with `@prisma/adapte"
+  }
+]
