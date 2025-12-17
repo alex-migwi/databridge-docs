@@ -1,4 +1,4 @@
-import { g as getCollection } from '../chunks/_astro_content_vff8xY1x.mjs';
+import { g as getCollection } from '../chunks/_astro_content_CMrrjOhZ.mjs';
 import { c as clarityConfig } from '../chunks/clarity.config_DRA55FFN.mjs';
 export { renderers } from '../renderers.mjs';
 

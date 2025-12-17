@@ -1,7 +1,7 @@
 import { d as createAstro, c as createComponent, m as maybeRenderHead, b as addAttribute, a as renderTemplate, r as renderComponent } from '../../chunks/astro/server_C7Z2_luB.mjs';
 import 'kleur/colors';
-import { g as getCollection } from '../../chunks/_astro_content_vff8xY1x.mjs';
-import { $ as $$DocLayout } from '../../chunks/DocLayout_gExPgdCi.mjs';
+import { g as getCollection } from '../../chunks/_astro_content_CMrrjOhZ.mjs';
+import { $ as $$DocLayout } from '../../chunks/DocLayout_C_mF3WRG.mjs';
 export { renderers } from '../../renderers.mjs';
 
 const $$Astro$1 = createAstro("https://alex-migwi.github.io/databridge-docs");
@@ -17,7 +17,7 @@ const prerender = false;
 const $$ = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$;
-  const base = "/databridge-docs/";
+  const base = "/databridge-docs";
   const { slug } = Astro2.params;
   const docEntries = await getCollection("docs", ({ data }) => {
     return data.draft !== true ;

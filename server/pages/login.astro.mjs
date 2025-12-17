@@ -1,7 +1,7 @@
 import { d as createAstro, c as createComponent, a as renderTemplate, h as defineScriptVars, r as renderComponent, b as addAttribute, g as renderHead } from '../chunks/astro/server_C7Z2_luB.mjs';
 import 'kleur/colors';
 /* empty css                                     */
-import { $ as $$Footer, a as $$Header } from '../chunks/Footer_B7nQPHOE.mjs';
+import { $ as $$Footer, a as $$Header } from '../chunks/Footer_BmRAvYfw.mjs';
 import { c as clarityConfig } from '../chunks/clarity.config_DRA55FFN.mjs';
 export { renderers } from '../renderers.mjs';
 

@@ -1,12 +1,12 @@
 import { v as ROUTE_TYPE_HEADER, w as REROUTE_DIRECTIVE_HEADER, D as DEFAULT_404_COMPONENT, A as AstroError, x as ActionNotFoundError, y as clientAddressSymbol, L as LocalsNotAnObject, z as REROUTABLE_STATUS_CODES, B as responseSentSymbol, C as getDefaultExportFromCjs } from './astro/server_C7Z2_luB.mjs';
 import { bold, red, yellow, dim, blue } from 'kleur/colors';
-import { D as DEFAULT_404_ROUTE, d as default404Instance, e as ensure404Route } from './astro-designed-error-pages_DaHB4iGi.mjs';
+import { D as DEFAULT_404_ROUTE, d as default404Instance, e as ensure404Route } from './astro-designed-error-pages_I2_xrbuC.mjs';
 import buffer from 'node:buffer';
 import crypto from 'node:crypto';
 import fs, { existsSync, readFileSync } from 'node:fs';
 import { Http2ServerResponse } from 'node:http2';
 import { f as fileExtension, j as joinPaths, s as slash, p as prependForwardSlash$1, a as removeTrailingForwardSlash, b as appendForwardSlash$1, c as isInternalPath$1, d as collapseDuplicateTrailingSlashes, h as hasFileExtension$1 } from './path_cAhFYasz.mjs';
-import { r as requestIs404Or500, i as isRequestServerIsland, n as notFound, a as redirectToFallback, b as redirectToDefaultLocale, c as requestHasLocale, e as normalizeTheLocale, d as defineMiddleware, S as SERVER_ISLAND_COMPONENT, f as SERVER_ISLAND_ROUTE, g as createEndpoint, R as RouteCache, s as sequence, h as findRouteToRewrite, m as matchRoute, j as RenderContext, P as PERSIST_SYMBOL, k as getSetCookiesFromResponse } from './index_Dyv0yXxa.mjs';
+import { r as requestIs404Or500, i as isRequestServerIsland, n as notFound, a as redirectToFallback, b as redirectToDefaultLocale, c as requestHasLocale, e as normalizeTheLocale, d as defineMiddleware, S as SERVER_ISLAND_COMPONENT, f as SERVER_ISLAND_ROUTE, g as createEndpoint, R as RouteCache, s as sequence, h as findRouteToRewrite, m as matchRoute, j as RenderContext, P as PERSIST_SYMBOL, k as getSetCookiesFromResponse } from './index_BkbmjDgY.mjs';
 import { N as NOOP_MIDDLEWARE_FN } from './noop-middleware_v8uHeuVX.mjs';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import http from 'node:http';

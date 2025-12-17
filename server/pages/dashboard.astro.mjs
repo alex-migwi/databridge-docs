@@ -1,6 +1,6 @@
 import { c as createComponent, r as renderComponent, a as renderTemplate, m as maybeRenderHead, b as addAttribute } from '../chunks/astro/server_C7Z2_luB.mjs';
 import 'kleur/colors';
-import { $ as $$DocLayout } from '../chunks/DocLayout_gExPgdCi.mjs';
+import { $ as $$DocLayout } from '../chunks/DocLayout_C_mF3WRG.mjs';
 export { renderers } from '../renderers.mjs';
 
 const $$Dashboard = createComponent(async ($$result, $$props, $$slots) => {

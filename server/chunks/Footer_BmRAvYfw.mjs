@@ -18,7 +18,7 @@ const $$ThemeToggle = createComponent(($$result, $$props, $$slots) => {
 }, "/home/runner/work/databridge/databridge/clarity/src/components/ThemeToggle.astro", void 0);
 
 const $$Header = createComponent(($$result, $$props, $$slots) => {
-  const base = "/databridge-docs/";
+  const base = "/databridge-docs";
   return renderTemplate`${maybeRenderHead()}<header class="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60"> <div class="flex h-16 items-center px-4 sm:px-6 lg:px-8"> <button id="sidebar-toggle" class="mr-4 md:hidden p-2 text-muted-foreground hover:text-foreground"> <span class="sr-only">Open sidebar</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path> </svg> </button> <div class="flex items-center gap-2 font-bold text-xl tracking-tight"> <a${addAttribute(`${base}`, "href")} class="flex items-center gap-3 hover:opacity-80 transition-opacity"> <img${addAttribute(`${base}logo.svg`, "src")}${addAttribute(clarityConfig.site.name, "alt")} class="h-8 w-8"> <span class="text-foreground">${clarityConfig.site.name}</span> </a> </div> <div class="flex-1"></div> <div class="flex items-center gap-4"> ${renderTemplate`<div class="hidden md:block w-64"> ${renderComponent($$result, "Search", $$Search, {})} </div>`} <nav class="flex items-center gap-4"> ${clarityConfig.navigation.showLogin} ${renderTemplate`${renderComponent($$result, "ThemeToggle", $$ThemeToggle, {})}`} </nav> </div> </div> </header>`;
 }, "/home/runner/work/databridge/databridge/clarity/src/components/Header.astro", void 0);
 

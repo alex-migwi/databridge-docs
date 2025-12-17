@@ -1,8 +1,8 @@
 import { d as createAstro, c as createComponent, m as maybeRenderHead, b as addAttribute, a as renderTemplate, r as renderComponent, e as renderScript, F as Fragment, f as renderSlot, g as renderHead } from './astro/server_C7Z2_luB.mjs';
 import 'kleur/colors';
 /* empty css                             */
-import { $ as $$Footer, a as $$Header } from './Footer_B7nQPHOE.mjs';
-import { g as getCollection } from './_astro_content_vff8xY1x.mjs';
+import { $ as $$Footer, a as $$Header } from './Footer_BmRAvYfw.mjs';
+import { g as getCollection } from './_astro_content_CMrrjOhZ.mjs';
 import { c as clarityConfig } from './clarity.config_DRA55FFN.mjs';
 /* empty css                             */
 
@@ -11,7 +11,7 @@ const $$SidebarNode = createComponent(($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro$6, $$props, $$slots);
   Astro2.self = $$SidebarNode;
   const { node } = Astro2.props;
-  const base = "/databridge-docs/";
+  const base = "/databridge-docs";
   const currentPath = Astro2.url.pathname;
   const isActive = node.slug && (currentPath === `${base}docs/${node.slug}` || currentPath === `${base}docs/${node.slug}/`);
   return renderTemplate`${maybeRenderHead()}<li class="mt-1"> ${node.slug ? renderTemplate`<a${addAttribute(`${base}docs/${node.slug}`, "href")}${addAttribute([
@@ -91,7 +91,7 @@ const $$Breadcrumbs = createComponent(($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro$4, $$props, $$slots);
   Astro2.self = $$Breadcrumbs;
   const { items } = Astro2.props;
-  const base = "/databridge-docs/";
+  const base = "/databridge-docs";
   return renderTemplate`${maybeRenderHead()}<nav class="flex items-center gap-2 text-sm text-muted-foreground mb-6"> <a${addAttribute(base, "href")} class="hover:text-foreground transition-colors">Home</a> ${items.map((item, index) => renderTemplate`${renderComponent($$result, "Fragment", Fragment, {}, { "default": ($$result2) => renderTemplate` <span class="mx-1">/</span> ${index === items.length - 1 ? renderTemplate`<span class="text-foreground font-medium">${item.text}</span>` : renderTemplate`<a${addAttribute(item.href, "href")} class="hover:text-foreground transition-colors"> ${item.text} </a>`}` })}`)} </nav>`;
 }, "/home/runner/work/databridge/databridge/clarity/src/components/Breadcrumbs.astro", void 0);
 
@@ -152,7 +152,7 @@ const $$DocLayout = createComponent(($$result, $$props, $$slots) => {
   const { frontmatter, headings, title, description } = Astro2.props;
   const pageTitle = title || frontmatter?.title || "Clarity";
   const pageDescription = description || frontmatter?.description || "";
-  const base = "/databridge-docs/";
+  const base = "/databridge-docs";
   const fullPath = Astro2.url.pathname;
   const slug = fullPath.includes("/docs/") ? fullPath.split("/docs/")[1].replace(/\/$/, "") : fullPath.replace(base, "").replace(/^docs\//, "").replace(/\/$/, "");
   const pathParts = slug.split("/").filter(Boolean);

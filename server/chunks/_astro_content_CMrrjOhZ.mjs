@@ -245,7 +245,7 @@ class ImmutableDataStore {
    */
   static async fromModule() {
     try {
-      const data = await import('./_astro_data-layer-content_D8dFg6Jp.mjs');
+      const data = await import('./_astro_data-layer-content_DL7QrEBr.mjs');
       if (data.default instanceof Map) {
         return ImmutableDataStore.fromMap(data.default);
       }
@@ -277,7 +277,7 @@ function dataStoreSingleton() {
 }
 const globalDataStore = dataStoreSingleton();
 
-const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/databridge-docs/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_BACKEND_URL": "http://localhost:3000", "PUBLIC_BASE_PATH": "/databridge-docs/", "PUBLIC_SITE_DESCRIPTION": "Generate production-ready APIs from your database schema", "PUBLIC_SITE_NAME": "DataBridge Docs", "PUBLIC_SITE_URL": "https://alex-migwi.github.io/databridge-docs", "SITE": "https://alex-migwi.github.io/databridge-docs", "SSR": true};
+const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/databridge-docs", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_BACKEND_URL": "http://localhost:3000", "PUBLIC_BASE_PATH": "/databridge-docs", "PUBLIC_SITE_DESCRIPTION": "Generate production-ready APIs from your database schema", "PUBLIC_SITE_NAME": "DataBridge Docs", "PUBLIC_SITE_URL": "https://alex-migwi.github.io/databridge-docs", "SITE": "https://alex-migwi.github.io/databridge-docs", "SSR": true};
 function createCollectionToGlobResultMap({
   globResult,
   contentDir
@@ -404,7 +404,7 @@ const CONTENT_LAYER_IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
 async function updateImageReferencesInBody(html, fileName) {
   const { default: imageAssetMap } = await import('./content-assets_DleWbedO.mjs');
   const imageObjects = /* @__PURE__ */ new Map();
-  const { getImage } = await import('./_astro_assets_Ccv4SshX.mjs').then(n => n._);
+  const { getImage } = await import('./_astro_assets_qEI7dbS6.mjs').then(n => n._);
   for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
     try {
       const decodedImagePath = JSON.parse(imagePath.replaceAll("&#x22;", '"'));

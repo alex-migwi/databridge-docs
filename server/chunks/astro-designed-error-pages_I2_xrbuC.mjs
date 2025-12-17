@@ -355,7 +355,7 @@ const ACTION_QUERY_PARAMS$1 = {
   actionName: "_action"};
 const ACTION_RPC_ROUTE_PATTERN = "/_actions/[...path]";
 
-const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/databridge-docs/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_BACKEND_URL": "http://localhost:3000", "PUBLIC_BASE_PATH": "/databridge-docs/", "PUBLIC_SITE_DESCRIPTION": "Generate production-ready APIs from your database schema", "PUBLIC_SITE_NAME": "DataBridge Docs", "PUBLIC_SITE_URL": "https://alex-migwi.github.io/databridge-docs", "SITE": "https://alex-migwi.github.io/databridge-docs", "SSR": true};
+const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/databridge-docs", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_BACKEND_URL": "http://localhost:3000", "PUBLIC_BASE_PATH": "/databridge-docs", "PUBLIC_SITE_DESCRIPTION": "Generate production-ready APIs from your database schema", "PUBLIC_SITE_NAME": "DataBridge Docs", "PUBLIC_SITE_URL": "https://alex-migwi.github.io/databridge-docs", "SITE": "https://alex-migwi.github.io/databridge-docs", "SSR": true};
 const ACTION_QUERY_PARAMS = ACTION_QUERY_PARAMS$1;
 const codeToStatusMap = {
   // Implemented from IANA HTTP Status Code Registry

@@ -77,7 +77,7 @@
   {
     "slug": "getting-started/quick-start",
     "title": "getting-started/quick-start",
-    "content": "# Quick Start Guide\n\nGet DataBridge running in 5 minutes!\n\n---\n\n## Prerequisites\n\n- Node.js 20 or higher\n- Database: MySQL, PostgreSQL, SQL Server, SQLite, or CockroachDB (local or remote)\n- Basic terminal knowledge\n\n> **Version 0.2.5** - Now supports 5 major databases!\n\n---\n\n## Installation\n\nChoose the platform-specific package for your OS:\n\n```bash\n# Windows\nnpm install -g @databridge-cli/cli-win32\n\n# macOS\nnpm install -g @databridge-cli/cli-darwin\n\n# Linux\nnpm install -g @databridge-cli/cli-l"
+    "content": "# Quick Start Guide\n\nGet DataBridge running in 5 minutes!\n\n---\n\n## Prerequisites\n\n- Node.js 20 or higher\n- Database: MySQL, PostgreSQL, SQL Server, SQLite, or CockroachDB (local or remote)\n- Basic terminal knowledge\n\n> **Version 0.2.5** - Now supports 5 major databases!\n\n---\n\n## Installation\n\nInstall the universal package (works on all platforms):\n\n```bash\nnpm install -g @databridge-cli/cli\n\n# Verify installation\ndatabridge --version\n```\n\n---\n\n## 5-Minute Quick Start\n\n### 1. Choose Your Database"
   },
   {
     "slug": "introduction",

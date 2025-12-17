@@ -1,7 +1,7 @@
 import { c as createComponent, a as renderTemplate, r as renderComponent, b as addAttribute, g as renderHead } from '../chunks/astro/server_C7Z2_luB.mjs';
 import 'kleur/colors';
 /* empty css                                     */
-import { $ as $$Footer, a as $$Header } from '../chunks/Footer_B7nQPHOE.mjs';
+import { $ as $$Footer, a as $$Header } from '../chunks/Footer_BmRAvYfw.mjs';
 import { c as clarityConfig } from '../chunks/clarity.config_DRA55FFN.mjs';
 export { renderers } from '../renderers.mjs';
 
@@ -113,7 +113,7 @@ var __defProp = Object.defineProperty;
 var __template = (cooked, raw) => __freeze(__defProp(cooked, "raw", { value: __freeze(cooked.slice()) }));
 var _a;
 const $$Index = createComponent(($$result, $$props, $$slots) => {
-  const base = "/databridge-docs/";
+  const base = "/databridge-docs";
   const homepage = mergeHomepageConfig(clarityConfig.homepage, clarityConfig.site.name);
   const resolveHref = (href) => {
     if (href === "github" && clarityConfig.github.enabled) {

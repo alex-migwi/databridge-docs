@@ -1,5 +1,5 @@
-import { d as defineMiddleware, s as sequence } from './chunks/index_Dyv0yXxa.mjs';
-import './chunks/astro-designed-error-pages_DaHB4iGi.mjs';
+import { d as defineMiddleware, s as sequence } from './chunks/index_BkbmjDgY.mjs';
+import './chunks/astro-designed-error-pages_I2_xrbuC.mjs';
 import 'kleur/colors';
 import './chunks/astro/server_C7Z2_luB.mjs';
 
@@ -60,7 +60,7 @@ async function validateSession(request) {
 }
 const onRequest$1 = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
-  const base = "/databridge-docs/";
+  const base = "/databridge-docs";
   if (pathname.startsWith("/_astro/") || pathname.startsWith("/assets/") || pathname.match(/\.(jpg|jpeg|png|gif|svg|ico|css|js|json|xml|txt)$/) || pathname.startsWith("/api/")) {
     return next();
   }
